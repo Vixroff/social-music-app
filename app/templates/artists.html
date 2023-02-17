@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div>
+        Топовые артисты
+        <br>
+        <br>
+        {% if artists %}
+          {% for artist in artists %}
+          <div>{{ artist.artist.artist_name }}</div>
+          {% endfor %}
+        {% endif %}
+    </div>
+  </div>
+{% endblock %}

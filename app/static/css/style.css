@@ -42,7 +42,9 @@ ul{
 .main{
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
     padding: 0px 100px;
+    overflow: hidden;
 }
 
 .sidebar{
@@ -60,7 +62,6 @@ ul{
 
 .content{
     width: 77%;
-    height: 60px;
     background: #fff;
     border-radius: 5px;
     padding: 1rem;
