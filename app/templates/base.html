@@ -8,8 +8,25 @@
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 <body>
-    {% include "header.html" %}
-    {% block content %}
-    {% endblock %}
+    <section class="navbar">
+        <a href="/">Music App</a>
+        <form>
+            <input type="text" placeholder="Search music, albums...">
+        </form>
+        <button class="nav-button" >Sign In</button>
+    </section>
+    <section class="main">
+        <div class="sidebar">
+            <ul>
+                <a>Top artists</a>
+                <a>Top tracks</a>
+                <a>Recommendations for you</a>
+            </ul>
+        </div>
+        <div class="content">
+            {% block content%}
+            {% endblock %}
+        </div>
+    </section>
 </body>
 </html>
