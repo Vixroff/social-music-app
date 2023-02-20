@@ -1,6 +1,8 @@
 ## Set up ##
 1) Activate MySQL server and create database
 
+2) Go to https://developer.musixmatch.com/ and get your personal API KEY
+
 2) Create .env file and add your personal variables:
     ```
     SECRET_KEY = 'your-secret-key'
