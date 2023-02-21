@@ -1,6 +1,7 @@
 import os
 import requests
 from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 
 
 URL = 'https://api.musixmatch.com/ws/1.1/'
@@ -40,5 +41,6 @@ def top_tracks(request):
     })
 
 
+@login_required
 def profile(request):
     return render(request, 'content/profile.html')
