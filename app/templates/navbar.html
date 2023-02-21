@@ -4,9 +4,7 @@
         <input type="text" placeholder="Search music, albums...">
     </form>
     {% if not request.user.is_authenticated %}
-        <button class="nav-button">
-            <a href="{% url 'login' %}">Sign In</a>
-        </button>
+        <a href="{% url 'login' %}">Войти</a>
     {% else %}
         <a href="{% url 'profile' %}">Мой профиль</a>
         <a href="{% url 'logout' %}">Выйти</a>

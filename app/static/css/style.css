@@ -42,7 +42,7 @@ ul{
 .main{
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: start;
     padding: 0px 100px;
 }
 
