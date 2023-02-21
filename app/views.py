@@ -11,7 +11,7 @@ def index(request):
     intro = """
     Welcome to the social-music-app!
     """
-    return render(request, 'index.html', {
+    return render(request, 'content/index.html', {
         'content': intro
     })
 
@@ -23,7 +23,7 @@ def top_artists(request):
     artists_response = requests.get(URL+top_artists_query+params).json()
     if artists_response['message']['header']['status_code'] == 200:
         artists = artists_response['message']['body']['artist_list']
-    return render(request, 'artists.html', {
+    return render(request, 'content/artists.html', {
         'artists': artists
     })
 
@@ -35,6 +35,10 @@ def top_tracks(request):
     tracks_response = requests.get(URL+top_tracks_query+params).json()
     if tracks_response['message']['header']['status_code'] == 200:
         tracks = tracks_response['message']['body']['track_list']
-    return render(request, 'tracks.html', {
+    return render(request, 'content/tracks.html', {
         'tracks': tracks
     })
+
+
+def profile(request):
+    return render(request, 'content/profile.html')
