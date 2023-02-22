@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.views import View
+from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
 
 
@@ -10,6 +12,12 @@ from .forms import RegistrationForm
 @login_required
 def profile(request):
     return render(request, 'profile.html')
+
+
+class MyLoginView(LoginView):
+    def form_invalid(self, form):
+        messages.error(self.request, 'Неверные данные')
+        return super().form_invalid(form)
 
 
 class RegistrationView(View):
@@ -26,4 +34,13 @@ class RegistrationView(View):
             user = form.save()
             login(request, user)
             return redirect('profile')
+        else:
+            errors = form.errors.as_data()
+            for field, error in errors.items():
+                messages.error(
+                    request, 
+                    'Ошибка в поле {}: {}'.format(
+                    field, error[0]
+                    )
+                )
         return render(request, self.template, {'form': form})

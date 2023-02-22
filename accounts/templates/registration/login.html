@@ -1,18 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
-
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-{% endif %}
 <form method="POST" action="{% url 'login' %}">
     {% csrf_token %}
     <table>
@@ -28,9 +16,7 @@
     <input type="submit" value="login">
     <input type="hidden" name="next" value="{{ next }}">
 </form>
-
 <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
 <p><a href="{% url 'registration' %}">Зарегистрироваться</a></p>
-
 
 {% endblock %}

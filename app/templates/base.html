@@ -12,12 +12,19 @@
     <section class="main">
         <div class="sidebar">
             <ul>
-                <a href="{% url 'top-artists' %}">Top artists</a>
-                <a href="{% url 'top-tracks' %}">Top tracks</a>
-                <a>Recommendations for you</a>
+                <a href="{% url 'top-artists' %}">Лучшие исполнители</a>
+                <a href="{% url 'top-tracks' %}">Горячие треки</a>
+                <a>Рекомендации</a>
             </ul>
         </div>
         <div class="content">
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
             {% block content%}
             {% endblock %}
         </div>
