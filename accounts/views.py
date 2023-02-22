@@ -7,11 +7,20 @@ from django.contrib.auth.decorators import login_required
 
 
 from .forms import RegistrationForm
+from .models import CustomUser
 
 
-@login_required
+@login_required(redirect_field_name='login')
 def profile(request):
-    return render(request, 'profile.html')
+    user = CustomUser.objects.get(pk=request.user.id)
+    tracks = user.added_tracks.all()
+    playlists = user.added_playlists.all()
+    return render(request, 'profile.html', {
+        'user': user,
+        'tracks': tracks,
+        'playlists': playlists
+    }
+    )
 
 
 class MyLoginView(LoginView):

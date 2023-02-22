@@ -1,5 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {{ request.user.username }}
+<div>
+    <h1>Профиль:</h1>
+    <ul>
+        <li><p>{{ user.username }}</p></li>
+    </ul>
+</div>
+<div>
+    <h1>Ваши треки:</h1>
+    {% if tracks %}
+        <p>Здесь будут трек</p>
+    {% else %}
+        <p>Треков еще нет</p>
+    {% endif %}
+</div>
+<div>
+    <h1>Ваши альбомы:</h1>
+    {% if tracks %}
+        <p>Здесь будут альбомы</p>
+    {% else %}
+        <p>Альбомов еще нет</p>
+    {% endif %}
+</div>
+
 {% endblock %}

@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from accounts.models import CustomUser
 
 
 class Albums(models.Model):
@@ -54,7 +54,7 @@ class Playlists(models.Model):
     name = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    creator = models.ForeignKey(User, on_delete=models.CASCADE)
+    creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     tracks = models.ManyToManyField(Tracks)
     
     def __str__(self):
@@ -67,7 +67,7 @@ class Playlists(models.Model):
 class Comments(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     playlist = models.ForeignKey(Playlists, on_delete=models.CASCADE)
 
     def __repr__(self):
@@ -82,12 +82,12 @@ class Comments(models.Model):
 
 
 class UserHasTracks(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     track = models.ForeignKey(Tracks, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
 
 
 class UserHasPlaylists(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     playlist = models.ForeignKey(Playlists, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
