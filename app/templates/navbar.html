@@ -1,0 +1,12 @@
+<section class="navbar">
+    <a href="/">Music App</a>
+    <form>
+        <input type="text" placeholder="Search music, albums...">
+    </form>
+    {% if not request.user.is_authenticated %}
+        <a href="{% url 'login' %}">Войти</a>
+    {% else %}
+        <a href="{% url 'profile' %}">Мой профиль</a>
+        <a href="{% url 'logout' %}">Выйти</a>
+    {% endif %}
+</section>
