@@ -21,12 +21,12 @@ pip install requirements.txt
     MUSIXMATCH_API = 'your-api-key-from-musixmatch'
     ```
 
-5) Execute migrations to your db:
+5) Execute migrations:
 ```
 python manage.py migrate
 ```
 
-6) Run server by command below and go to 127.0.0:8000
+6) Run server by command below and go to http://127.0.0.1:8000
 ```
 make run
 ```
