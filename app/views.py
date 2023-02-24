@@ -1,12 +1,13 @@
 import os
 import requests
+import pprint
 
 
 from django.shortcuts import render
 from django.views import View
 
 
-from .models import Authors
+from .models import Authors, Tracks, Genres, Albums
 
 
 URL = 'https://api.musixmatch.com/ws/1.1/'
@@ -35,12 +36,12 @@ class TopArtistsView(View):
     def get(self, request):
         artists_response = requests.get(URL+self.top_artists_query+self.params).json()
         status = artists_response['message']['header'].get('status_code')
-        if status is 200:
+        if status == 200:
             self.artists = artists_response['message']['body']['artist_list']
             self.fill_db(self.artists)
         return render(request, self.template_name, {'artists': self.artists})
 
-    def fill_db(self, artists: list):
+    def fill_db(self, artists):
         artists_to_db = []
         for artist in artists:
             if not self.model.objects.filter(
@@ -54,13 +55,50 @@ class TopArtistsView(View):
         self.model.objects.bulk_create(artists_to_db)
 
 
-def top_tracks(request):
-    tracks = None
+class TopTracksView(View):
+    model = Tracks
+    template_name = 'content/tracks.html'
     top_tracks_query = 'chart.tracks.get'
     params = f'?chart_name=mxmweekly&page=1&page_size=7&country=XW&f_has_lyrics=1&apikey={APIKEY}'
-    tracks_response = requests.get(URL+top_tracks_query+params).json()
-    if tracks_response['message']['header']['status_code'] == 200:
-        tracks = tracks_response['message']['body']['track_list']
-    return render(request, 'content/tracks.html', {
-        'tracks': tracks
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.tracks = None
+    
+    def get(self, request):
+        tracks_response = requests.get(URL+self.top_tracks_query+self.params).json()
+        status = tracks_response['message']['header'].get('status_code')
+        if status == 200:
+            self.tracks = tracks_response['message']['body']['track_list']
+            self.fill_db(self.tracks)
+        return render(request, self.template_name, {
+        'tracks': self.tracks
     })
+    
+    def fill_db(self, tracks):
+        for track in tracks:
+            if not self.model.objects.filter(
+                id_musixmatch=track['track']['track_id']
+            ):
+                album, created = Albums.objects.get_or_create(
+                    id_musixmatch=track['track']['album_id'],
+                    name=track['track']['album_name']
+                )
+                author, created = Authors.objects.get_or_create(
+                    id_musixmatch=track['track']['artist_id'],
+                    name=track['track']['artist_name']
+                )
+                genres = []
+                for genre in track['track']['primary_genres']['music_genre_list']:
+                    genre, created = Genres.objects.get_or_create(
+                        id_musixmatch=genre['music_genre']['music_genre_id'],
+                        name=genre['music_genre']['music_genre_name']
+                    )
+                    genres.append(genre)
+                track = self.model.objects.create(
+                    id_musixmatch=track['track']['track_id'],
+                    name=track['track']['track_name'],
+                    album=album,
+                    author=author
+                )
+                track.genres.set(genres)

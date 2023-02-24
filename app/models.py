@@ -5,7 +5,7 @@ from accounts.models import CustomUser
 class Albums(models.Model):
     id_musixmatch = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
-    reliased = models.DateField(blank=True)
+    reliased = models.DateField(null=True)
 
     def __str__(self):
         return self.name
@@ -40,8 +40,8 @@ class Tracks(models.Model):
     id_musixmatch = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
     album = models.ForeignKey(Albums, on_delete=models.RESTRICT)
-    genre = models.ForeignKey(Genres, on_delete=models.RESTRICT)
-    authors = models.ManyToManyField(Authors)
+    author = models.ForeignKey(Authors, on_delete=models.RESTRICT, null=True)
+    genres = models.ManyToManyField(Genres)
     
     def __str__(self):
         return self.name
