@@ -1,9 +1,10 @@
 import os
 import requests
-import pprint
 
 
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.utils.decorators import method_decorator
 from django.views import View
 
 
@@ -74,6 +75,16 @@ class TopTracksView(View):
         return render(request, self.template_name, {
         'tracks': self.tracks
     })
+
+    @method_decorator(login_required)
+    def post(self, request):
+        track = self.model.objects.get(
+            id_musixmatch=request.POST.get('pk')
+        )
+        user = request.user
+        if not user.added_tracks.filter(id=track.id).exists():
+            user.added_tracks.add(track)
+        return redirect('top-tracks')
     
     def fill_db(self, tracks):
         for track in tracks:

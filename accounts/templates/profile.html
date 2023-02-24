@@ -9,15 +9,24 @@
 </div>
 <div>
     <h1>Ваши треки:</h1>
-    {% if tracks %}
-        <p>Здесь будут трек</p>
+    {% if tracks.exists %}
+    {% for track in tracks %}
+    <div>
+        <p> {{ track.name }}</p>
+    </div>
+    {% endfor %}
     {% else %}
         <p>Треков еще нет</p>
     {% endif %}
 </div>
 <div>
     <h1>Ваши альбомы:</h1>
-    {% if tracks %}
+    {% if playlists.exists %}
+    {% for playlist in playlists %}
+    <div>
+        <p> {{ playlist.name }}</p>
+    </div>
+    {% endfor %}
         <p>Здесь будут альбомы</p>
     {% else %}
         <p>Альбомов еще нет</p>

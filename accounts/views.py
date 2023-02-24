@@ -12,7 +12,7 @@ from .models import CustomUser
 
 @login_required(redirect_field_name='login')
 def profile(request):
-    user = CustomUser.objects.get(pk=request.user.id)
+    user = CustomUser.objects.get(id=request.user.id)
     tracks = user.added_tracks.all()
     playlists = user.added_playlists.all()
     return render(request, 'profile.html', {

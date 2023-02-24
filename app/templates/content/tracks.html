@@ -1,16 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-      <div class="col">
-        Чарт самых прослушиваемых произведений за неделю
-        <br>
-        <br>
-        {% if tracks %}
-          {% for track in tracks %}
-          <div>{{ track.track.track_name }}</div>
-          <div>{{ track.track.artist_name }}</div>
-            <br>
-          {% endfor %}
-        {% endif %}
-      </div>
+<h1>Чарт самых прослушиваемых произведений за неделю</h1>
+{% if tracks %}
+{% for track in tracks %}
+<ul>
+  <li>
+      <p>
+        Название: {{ track.track.track_name }}<br>
+        Исполнитель: {{ track.track.artist_name }}
+      </p>
+      {% if request.user.is_authenticated %}
+      <form method="POST" action="{% url 'top-tracks' %}">
+        {% csrf_token %}
+        <input type="hidden" name="pk" value="{{ track.track.track_id }}">
+        <input type="submit" value="Добавить">
+      </form>
+      {% endif %}
+  </li>
+</ul>
+{% endfor %}
+{% else %}
+<h2>Данные по трекам отсутствуют</h2>
+{% endif %}
+
 {% endblock %}
