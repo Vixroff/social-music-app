@@ -8,6 +8,7 @@
     <title>{{ title }}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 <body>
+
     {% include "navbar.html" %}
     <section class="main">
         <div class="sidebar">
@@ -26,7 +27,7 @@
                 </ul>
             {% endif %}
             {% block content%}
-            {% endblock %}
+            {% endblock %}       
         </div>
     </section>
 </body>
