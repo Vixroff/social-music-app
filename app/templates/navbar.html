@@ -1,7 +1,7 @@
 <section class="navbar">
     <a href="/">Music App</a>
-    <form>
-        <input type="text" placeholder="Search music, albums...">
+    <form method="get" action="{% url 'search' %}">
+        <input type="text" placeholder="Поиск..." name="query">
     </form>
     {% if not request.user.is_authenticated %}
         <a href="{% url 'login' %}">Войти</a>

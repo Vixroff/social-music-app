@@ -5,12 +5,15 @@
 }
 
 body{
-    background: linear-gradient(45deg, #4158d0 0%, #c850c0 40%, #ffcc70 90%);
+    background: linear-gradient(45deg, #4158d0 0%, #c850c0 25%, #ffcc70 100%);
     background-attachment: fixed;
-    background-size: cover;
     font: 400 16px/24px 'Montserrat';
-    overscroll-behavior: none;
-    height: 100%; 
+    overscroll-behavior: auto;
+    height: 100%;   
+}
+
+.lhlh{
+    font: 1em sans-serif;
 }
 
 section{

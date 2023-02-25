@@ -1,5 +1,6 @@
 import os
 import requests
+import pprint
 
 
 from django.contrib.auth.decorators import login_required
@@ -12,7 +13,7 @@ from .models import Authors, Tracks, Genres, Albums
 
 
 URL = 'https://api.musixmatch.com/ws/1.1/'
-APIKEY = os.getenv('MUSIXMATCH_API')
+APIKEY = f"&apikey={os.getenv('MUSIXMATCH_API')}"
 
 
 def index(request):
@@ -28,17 +29,17 @@ class TopArtistsView(View):
     model = Authors
     template_name = 'content/artists.html'
     top_artists_query = 'chart.artists.get'
-    params = f'?&page=1&page_size=7&format=json&apikey={APIKEY}'
+    params = f'?&page=1&page_size=7&format=json'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.artists = None
     
     def get(self, request):
-        artists_response = requests.get(URL+self.top_artists_query+self.params).json()
-        status = artists_response['message']['header'].get('status_code')
+        response = requests.get(URL+self.top_artists_query+self.params+APIKEY).json()
+        status = response['message']['header'].get('status_code')
         if status == 200:
-            self.artists = artists_response['message']['body']['artist_list']
+            self.artists = response['message']['body']['artist_list']
             self.fill_db(self.artists)
         return render(request, self.template_name, {'artists': self.artists})
 
@@ -60,17 +61,17 @@ class TopTracksView(View):
     model = Tracks
     template_name = 'content/tracks.html'
     top_tracks_query = 'chart.tracks.get'
-    params = f'?chart_name=mxmweekly&page=1&page_size=7&country=XW&f_has_lyrics=1&apikey={APIKEY}'
+    params = f'?chart_name=mxmweekly&page=1&page_size=7&country=XW&f_has_lyrics=1'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.tracks = None
     
     def get(self, request):
-        tracks_response = requests.get(URL+self.top_tracks_query+self.params).json()
-        status = tracks_response['message']['header'].get('status_code')
+        response = requests.get(URL+self.top_tracks_query+self.params+APIKEY).json()
+        status = response['message']['header'].get('status_code')
         if status == 200:
-            self.tracks = tracks_response['message']['body']['track_list']
+            self.tracks = response['message']['body']['track_list']
             self.fill_db(self.tracks)
         return render(request, self.template_name, {
         'tracks': self.tracks
@@ -113,3 +114,54 @@ class TopTracksView(View):
                     author=author
                 )
                 track.genres.set(genres)
+
+
+class SearchView(View):
+    template_name = 'content/search.html'
+    api_tracks_query = 'track.search&page=1&page_size=5&s_track_rating=desc&q_track='
+    api_artists_query = 'artist.search&page=1&page_size=5&q_artist='
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.tracks = None
+        self.artists = None
+
+    def get(self, request):
+        self.user_query = request.GET.get('query')
+        if self.user_query == None or self.user_query == '':
+            return render(
+                request,
+                self.template_name,
+                {
+                'tracks': self.tracks,
+                'artists': self.artists,
+                'query': self.user_query
+                }
+            )
+        
+        tracks_response = requests.get(
+            URL + self.api_tracks_query + self.user_query + APIKEY
+        ).json()
+
+        artists_response = requests.get(
+            URL + self.api_artists_query + self.user_query + APIKEY
+        ).json()
+
+        tracks_response_status = tracks_response['message']['header'].get('status_code')
+        if tracks_response_status == 200:
+            self.tracks = tracks_response['message']['body']['track_list']
+        
+        artists_response_status = artists_response['message']['header'].get('status_code')
+        if artists_response_status == 200:
+            self.artists = artists_response['message']['body']['artist_list']
+
+        return render(
+            request,
+            self.template_name,
+            {
+            'tracks': self.tracks,
+            'artists': self.artists,
+            'query': self.user_query
+            }
+        )
+        
