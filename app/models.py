@@ -14,7 +14,7 @@ class Albums(models.Model):
         return "Album(id_musixmatch={}, name={})".format(self.id_musixmatch, self.name)
 
 
-class Authors(models.Model):
+class Artists(models.Model):
     id_musixmatch = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
 
@@ -39,8 +39,8 @@ class Genres(models.Model):
 class Tracks(models.Model):
     id_musixmatch = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
-    album = models.ForeignKey(Albums, on_delete=models.RESTRICT)
-    author = models.ForeignKey(Authors, on_delete=models.RESTRICT, null=True)
+    album = models.ForeignKey(Albums, on_delete=models.RESTRICT, null=True)
+    author = models.ForeignKey(Artists, on_delete=models.RESTRICT, null=True)
     genres = models.ManyToManyField(Genres)
     
     def __str__(self):

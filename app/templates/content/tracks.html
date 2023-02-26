@@ -7,13 +7,13 @@
 <ul>
   <li>
       <p>
-        Название: {{ track.track.track_name }}<br>
-        Исполнитель: {{ track.track.artist_name }}
+        Название: {{ track.track.name }}<br>
+        Исполнитель: {{ track.track.artist.name }}
       </p>
       {% if request.user.is_authenticated %}
       <form method="POST" action="{% url 'top-tracks' %}">
         {% csrf_token %}
-        <input type="hidden" name="pk" value="{{ track.track.track_id }}">
+        <input type="hidden" name="pk" value="{{ track.track.id_musixmatch }}">
         <input type="submit" value="Добавить">
       </form>
       {% endif %}
