@@ -51,7 +51,8 @@ class Tracks(models.Model):
 
 
 class Playlists(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=155)
+    description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

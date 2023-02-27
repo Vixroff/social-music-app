@@ -20,16 +20,18 @@
     {% endif %}
 </div>
 <div>
-    <h1>Ваши альбомы:</h1>
+    <h1>Ваши плейлисты:</h1>
     {% if playlists.exists %}
     {% for playlist in playlists %}
     <div>
-        <p> {{ playlist.name }}</p>
+        <a href="/playlist/{{ playlist.id }}">
+            <p> {{ playlist.name }}</p>
+        </a>
+        
     </div>
     {% endfor %}
-        <p>Здесь будут альбомы</p>
     {% else %}
-        <p>Альбомов еще нет</p>
+        <p>Плейлистов еще нет</p>
     {% endif %}
 </div>
 

@@ -1,24 +1,28 @@
-from django.shortcuts import render, redirect
-from django.views import View
 from django.contrib import messages
 from django.contrib.auth import login
-from django.contrib.auth.views import LoginView
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
+from django.shortcuts import render, redirect
+from django.utils.decorators import method_decorator
+from django.views import View
 
 
-from .forms import RegistrationForm
+from .forms import RegistrationForm, CreatePlaylistForm
 from .models import CustomUser
+from app.models import Playlists
 
 
 @login_required(redirect_field_name='login')
 def profile(request):
     user = CustomUser.objects.get(id=request.user.id)
     tracks = user.added_tracks.all()
-    playlists = user.added_playlists.all()
+    liked_playlists = user.added_playlists.all()
+    created_playlist = Playlists.objects.filter(creator=user)
     return render(request, 'profile.html', {
         'user': user,
         'tracks': tracks,
-        'playlists': playlists
+        'liked_playlists': liked_playlists,
+        'playlists': created_playlist
     }
     )
 
@@ -53,3 +57,30 @@ class RegistrationView(View):
                     )
                 )
         return render(request, self.template, {'form': form})
+
+
+@method_decorator(login_required, name='dispatch')
+class CreatePlaylistView(View):
+    template_name = 'create_playlist.html'
+
+    def get(self, request):
+        form = CreatePlaylistForm(user=request.user)
+        return render(
+            request,
+            self.template_name,
+            {'form': form}
+        )
+    
+    def post(self, request):
+        form = CreatePlaylistForm(request.POST)
+        if form.is_valid():
+            playlist = form.save(commit=False)
+            playlist.creator = request.user
+            form.save()
+            return redirect('profile')
+        return render(
+            request,
+            self.template_name,
+            {'form': form(user=request.user)}
+        )
+

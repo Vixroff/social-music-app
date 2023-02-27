@@ -1,6 +1,5 @@
 import os
 import requests
-import pprint
 
 
 from django.contrib.auth.decorators import login_required
@@ -9,7 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 
 
-from .models import Artists, Tracks, Genres, Albums
+from .models import Artists, Tracks, Playlists
 from .mixins import APIDataMixins
 
 
@@ -51,13 +50,17 @@ class TopTracksView(View):
     params = f'?chart_name=mxmweekly&page=1&page_size=7&country=XW&f_has_lyrics=1'
     
     def get(self, request):
-        track_response = requests.get(URL+self.top_tracks_query+self.params+APIKEY).json()
+        track_response = requests.get(
+            URL + self.top_tracks_query + self.params + APIKEY
+        ).json()
         api_handler = APIDataMixins(track_response)
         api_handler.insert_to_db()
         self.tracks = api_handler.get_data()
-        return render(request, self.template_name, {
-        'tracks': self.tracks
-    })
+        return render(
+            request,
+            self.template_name, 
+            {'tracks': self.tracks}
+        )
 
     @method_decorator(login_required)
     def post(self, request):
@@ -69,7 +72,8 @@ class TopTracksView(View):
         if not user.added_tracks.filter(id=track.id).exists():
             user.added_tracks.add(track)
         if next_url:
-            return redirect('next_url')
+            query = request.GET.get('query')
+            return redirect(next_url+'?query='+query)
         else:
             return redirect('top-tracks')
 
@@ -78,6 +82,11 @@ class SearchView(View):
     template_name = 'content/search.html'
     api_tracks_query = 'track.search&page=1&page_size=5&s_track_rating=desc&q_track='
     api_artists_query = 'artist.search&page=1&page_size=5&q_artist='
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.tracks = None
+        self.artists = None
 
     def get(self, request):
         self.user_query = request.GET.get('query')
@@ -112,4 +121,9 @@ class SearchView(View):
             'query': self.user_query
             }
         )
-        
+
+
+def playlist(request, pk):
+    playlist = Playlists.objects.get(pk=pk)
+    tracks = playlist.tracks.all()
+    return render(request, 'playlist.html', {'playlist': playlist, 'tracks': tracks})

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token%}
+    <table>
+        <thead>
+            <tr>
+                <th>Создание нового плейлиста</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    {{ form.name.label }}
+                    {{ form.name }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {{ form.description.label }}
+                    {{ form.description }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {{ form.tracks.label }}
+                    {{ form.tracks }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="submit" value="Создать">
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+{% endblock %}
