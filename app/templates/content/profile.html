@@ -24,7 +24,7 @@
     {% if playlists.exists %}
     {% for playlist in playlists %}
     <div>
-        <a href="/playlist/{{ playlist.id }}">
+        <a href="{% url 'playlist' pk=playlist.pk %}">
             <p> {{ playlist.name }}</p>
         </a>
         
