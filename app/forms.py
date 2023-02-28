@@ -1,10 +1,8 @@
-from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.forms import ModelForm, CheckboxSelectMultiple
 
 
-from .models import CustomUser
-from app.models import Playlists
+from .models import CustomUser, Playlists
 
 
 class RegistrationForm(UserCreationForm):
