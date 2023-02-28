@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Результаты поиска '{{ query }}'</h1>
+
+<h2>Треки</h2>
+{% if tracks %}
+<ul>
+  {% for track in tracks %}
+    <li>
+        <p>
+          Название: {{ track.track.name }}<br>
+          Исполнитель: {{ track.track.artist.name }}
+        </p>
+        {% if request.user.is_authenticated%}
+          <form method="post" action="{% url 'add_track' %}">
+            {% csrf_token %}
+            <input type="hidden" name="pk" value="{{ track.track.id_musixmatch }}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <input type="hidden" name="query" value="{{ query }}">
+            <input type="submit" value="Добавить">
+          </form>
+        {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Данные по трекам отсутствуют</p>
+{% endif %}
+
+<h2>Исполнители</h2>
+{% if artists %}
+{% for artist in artists %}
+<ul>
+  <li>
+      <p>
+        {{ artist.artist.name }}
+      </p>
+  </li>
+</ul>
+{% endfor %}
+{% else %}
+<p>Данные по исполнителям отсутствуют</p>
+{% endif %}
+
+{% endblock %}

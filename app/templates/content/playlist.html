@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Плейлист: {{ playlist.name }}</h1>
+<p>Создатель: {{ playlist.creator }}</p>
+<p>Создан: {{ playlist.created_at }}</p>
+
+<h2>Треки</h2>
+{% for track in tracks %}
+<p>
+    Трек "{{ track.name }}" ({{ track.author }})
+</p>
+
+{% endfor %}
+{% endblock %}

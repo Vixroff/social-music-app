@@ -8,13 +8,16 @@
     <title>{{ title }}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 <body>
+
     {% include "navbar.html" %}
     <section class="main">
         <div class="sidebar">
             <ul>
-                <a href="{% url 'top-artists' %}">Лучшие исполнители</a>
-                <a href="{% url 'top-tracks' %}">Горячие треки</a>
-                <a>Рекомендации</a>
+                <a href="{% url 'top_artists' %}">Лучшие исполнители</a>
+                <a href="{% url 'top_tracks' %}">Горячие треки</a>
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'create_playlist' %}" >Cоздать плейлист</a>
+                {% endif %}
             </ul>
         </div>
         <div class="content">
@@ -26,7 +29,7 @@
                 </ul>
             {% endif %}
             {% block content%}
-            {% endblock %}
+            {% endblock %}       
         </div>
     </section>
 </body>

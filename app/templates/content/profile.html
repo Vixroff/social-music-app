@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div>
+    <h1>Профиль:</h1>
+    <ul>
+        <li><p>{{ user.username }}</p></li>
+    </ul>
+</div>
+<div>
+    <h1>Ваши треки:</h1>
+    {% if tracks.exists %}
+    {% for track in tracks %}
+    <div>
+        <p> {{ track.name }}</p>
+    </div>
+    {% endfor %}
+    {% else %}
+        <p>Треков еще нет</p>
+    {% endif %}
+</div>
+<div>
+    <h1>Ваши плейлисты:</h1>
+    {% if playlists.exists %}
+    {% for playlist in playlists %}
+    <div>
+        <a href="/playlist/{{ playlist.id }}">
+            <p> {{ playlist.name }}</p>
+        </a>
+        
+    </div>
+    {% endfor %}
+    {% else %}
+        <p>Плейлистов еще нет</p>
+    {% endif %}
+</div>
+
+{% endblock %}

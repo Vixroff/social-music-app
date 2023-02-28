@@ -1,11 +1,23 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from accounts.models import CustomUser
+from django.utils.translation import gettext_lazy as _
+
+
+
+class CustomUser(AbstractUser):
+    email = models.EmailField(
+        _("email address"),
+        blank=False,
+        unique=True
+        )
+    added_tracks = models.ManyToManyField('app.Tracks', through='app.UserHasTracks')
+    added_playlists = models.ManyToManyField('app.Playlists', through='app.UserHasPlaylists')
 
 
 class Albums(models.Model):
     id_musixmatch = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
-    reliased = models.DateField(blank=True)
+    reliased = models.DateField(null=True)
 
     def __str__(self):
         return self.name
@@ -14,7 +26,7 @@ class Albums(models.Model):
         return "Album(id_musixmatch={}, name={})".format(self.id_musixmatch, self.name)
 
 
-class Authors(models.Model):
+class Artists(models.Model):
     id_musixmatch = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
 
@@ -39,9 +51,9 @@ class Genres(models.Model):
 class Tracks(models.Model):
     id_musixmatch = models.IntegerField(unique=True)
     name = models.CharField(max_length=255)
-    album = models.ForeignKey(Albums, on_delete=models.RESTRICT)
-    genre = models.ForeignKey(Genres, on_delete=models.RESTRICT)
-    authors = models.ManyToManyField(Authors)
+    album = models.ForeignKey(Albums, on_delete=models.RESTRICT, null=True)
+    author = models.ForeignKey(Artists, on_delete=models.RESTRICT, null=True)
+    genres = models.ManyToManyField(Genres)
     
     def __str__(self):
         return self.name
@@ -51,7 +63,8 @@ class Tracks(models.Model):
 
 
 class Playlists(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=155)
+    description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -62,7 +75,7 @@ class Playlists(models.Model):
     
     def __repr__(self):
         return "Playlist(name={}, creator={})".format(self.name, self.creator)
-
+    
 
 class Comments(models.Model):
     message = models.TextField()
