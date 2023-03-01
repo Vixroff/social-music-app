@@ -13,20 +13,30 @@
 {% endfor %}
 
 {% if request.user.is_authenticated %}
-    <form method="post" action="{% url 'playlist' pk=playlist.id%}">
+    <form method="post" action="{% url 'playlist' pk=playlist.id %}">
         {% csrf_token %}
         {{ form.as_div }}
-        <input type="submit" value="Отправить">
+        <button type="submit" name="add">Отправить</button>
     </form>
 {% endif %}
+<h3>Комментарии</h3>
 {% if comments%}
-{% for comment in comments %}
-<h3>Комментарий пользователя {{ comment.author }}</h3>
-<p> {{ comment.message }}</p>
-<span>{{ comment.created_at }}</span>
-{% endfor %}
+    {% for comment in comments %}
+    <div>
+        <h4>Комментарий пользователя {{ comment.author }}</h4>
+        <p>{{ comment.message }}</p>
+        <span>{{ comment.created_at }}</span>
+        {% if request.user == comment.author or request.user == playlist.creator %}
+        <form method="post" action="{% url 'playlist' pk=playlist.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="comment_id" value="{{ comment.id }}">
+            <button type="submit" name="delete">Удалить</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
 {% else %}
-<h3>Комментарии отсутствуют </h3>
+    <p>Комментарии отсутствуют </p>
 {% endif %}
 
 {% endblock %}

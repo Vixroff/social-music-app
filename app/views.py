@@ -122,16 +122,25 @@ class PlaylistView(View):
     
     @method_decorator(login_required)
     def post(self, request, pk):
-        form = CommentsForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.author = request.user
-            comment.playlist = Playlists.objects.get(pk=pk)
-            comment.save()
-            messages.success(request, 'Комментарий успешно добавлен')
+        user = request.user
+        if 'add' in request.POST:
+            form = CommentsForm(request.POST)
+            if form.is_valid():
+                comment = form.save(commit=False)
+                comment.author = user
+                comment.playlist = Playlists.objects.get(pk=pk)
+                comment.save()
+                messages.success(request, 'Комментарий успешно добавлен')
+                return redirect('playlist', pk=pk)
+            messages.error(request, 'Что-то пошло не так!')
             return redirect('playlist', pk=pk)
-            
+        elif 'delete' in request.POST:
+            comment = Comments.objects.get(id=request.POST.get('comment_id')).delete()
+            messages.success(request, 'Сообщение удалено')
+            return redirect('playlist', pk=pk)
+        
 
+            
 class RegistrationView(View):
     registration_form = RegistrationForm
     template = 'registration/register.html'
