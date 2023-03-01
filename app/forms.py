@@ -1,8 +1,8 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.forms import ModelForm, CheckboxSelectMultiple
+from django.forms import ModelForm, CheckboxSelectMultiple, HiddenInput
 
 
-from .models import CustomUser, Playlists
+from .models import CustomUser, Playlists, Comments
 
 
 class RegistrationForm(UserCreationForm):
@@ -33,4 +33,13 @@ class CreatePlaylistForm(ModelForm):
         }
         widgets = {
             'tracks': CheckboxSelectMultiple()
+        }
+
+
+class CommentsForm(ModelForm):
+    class Meta:
+        model = Comments
+        fields = ['message']
+        labels = {
+            'message': 'Комментарий'
         }

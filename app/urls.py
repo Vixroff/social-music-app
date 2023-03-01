@@ -14,7 +14,7 @@ urlpatterns = [
     ])),
     path('content/', include([
         path('create-playlist/', views.CreatePlaylistView.as_view(), name='create_playlist'), 
-        path('playlist/<int:pk>/', views.playlist, name='playlist'),
+        path('playlist/<int:pk>/', views.PlaylistView.as_view(), name='playlist'),
     ])),
     path('search/', include([
         path('search', views.SearchView.as_view(), name='search'),

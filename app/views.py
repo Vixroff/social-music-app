@@ -11,8 +11,8 @@ from django.utils.decorators import method_decorator
 from django.views import View
 
 
-from .forms import CreatePlaylistForm, RegistrationForm
-from .models import Artists, Tracks, Playlists, CustomUser
+from .forms import CreatePlaylistForm, RegistrationForm, CommentsForm
+from .models import Artists, Tracks, Playlists, CustomUser, Comments
 from .mixins import APIDataMixins
 
 
@@ -27,12 +27,6 @@ def index(request):
     return render(request, 'content/index.html', {
         'content': intro
     })
-
-
-def playlist(request, pk):
-    playlist = Playlists.objects.get(pk=pk)
-    tracks = playlist.tracks.all()
-    return render(request, 'content/playlist.html', {'playlist': playlist, 'tracks': tracks})
 
 
 @login_required(redirect_field_name='login')
@@ -91,7 +85,7 @@ class CreatePlaylistView(View):
         if form.is_valid():
             playlist = form.save(commit=False)
             playlist.creator = request.user
-            form.save()
+            playlist.save()
             messages.success(request, f'Плейлист "{playlist.name}" создан успешно')
             return redirect('profile')
         return render(
@@ -106,6 +100,37 @@ class MyLoginView(LoginView):
         messages.error(self.request, 'Неверные данные')
         return super().form_invalid(form)
 
+
+class PlaylistView(View):
+    template_name = 'content/playlist.html'
+
+    def get(self, request, pk):
+        playlist = Playlists.objects.get(pk=pk)
+        tracks = playlist.tracks.all()
+        comments = Comments.objects.filter(playlist=playlist)
+        comment_form = CommentsForm()
+        return render(
+            request, 
+            self.template_name, 
+            {
+            'playlist': playlist,
+            'tracks': tracks,
+            'comments': comments,
+            'form': comment_form,
+            }
+        )
+    
+    @method_decorator(login_required)
+    def post(self, request, pk):
+        form = CommentsForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.playlist = Playlists.objects.get(pk=pk)
+            comment.save()
+            messages.success(request, 'Комментарий успешно добавлен')
+            return redirect('playlist', pk=pk)
+            
 
 class RegistrationView(View):
     registration_form = RegistrationForm

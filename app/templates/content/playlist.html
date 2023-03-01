@@ -10,6 +10,23 @@
 <p>
     Трек "{{ track.name }}" ({{ track.author }})
 </p>
-
 {% endfor %}
+
+{% if request.user.is_authenticated %}
+    <form method="post" action="{% url 'playlist' pk=playlist.id%}">
+        {% csrf_token %}
+        {{ form.as_div }}
+        <input type="submit" value="Отправить">
+    </form>
+{% endif %}
+{% if comments%}
+{% for comment in comments %}
+<h3>Комментарий пользователя {{ comment.author }}</h3>
+<p> {{ comment.message }}</p>
+<span>{{ comment.created_at }}</span>
+{% endfor %}
+{% else %}
+<h3>Комментарии отсутствуют </h3>
+{% endif %}
+
 {% endblock %}
