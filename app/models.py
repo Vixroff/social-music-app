@@ -3,15 +3,24 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-
 class CustomUser(AbstractUser):
     email = models.EmailField(
         _("email address"),
         blank=False,
         unique=True
         )
+    following = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='followers')
     added_tracks = models.ManyToManyField('app.Tracks', through='app.UserHasTracks')
     added_playlists = models.ManyToManyField('app.Playlists', through='app.UserHasPlaylists')
+
+    def follow(self, user):
+        self.following.add(user)
+    
+    def unfollow(self, user):
+        self.following.remove(user)
+    
+    def is_follow(self, user):
+        return self.following.filter(id=user.id).exists()
 
 
 class Albums(models.Model):
@@ -67,8 +76,8 @@ class Playlists(models.Model):
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    tracks = models.ManyToManyField(Tracks)
+    creator = models.ForeignKey(CustomUser, related_name='playlists', on_delete=models.CASCADE)
+    tracks = models.ManyToManyField(Tracks, blank=True)
     
     def __str__(self):
         return self.name

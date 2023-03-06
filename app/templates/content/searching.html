@@ -44,4 +44,15 @@
 <p>Данные по исполнителям отсутствуют</p>
 {% endif %}
 
+<h2>Профили пользователей</h2>
+{% if profiles %}
+{% for profile in profiles %}
+  <a href="{% url 'profile_view' pk=profile.id %}">
+    <p>Профиль {{ profile.username }}</p>
+  </a>
+{% endfor %}
+{% else %}
+  <p> Профиль не найден </p>
+{% endif %}
+
 {% endblock %}

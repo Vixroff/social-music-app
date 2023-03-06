@@ -3,24 +3,24 @@
 {% block content %}
 <h1>Чарт самых прослушиваемых произведений за неделю</h1>
 {% if tracks %}
-{% for track in tracks %}
-<ul>
-  <li>
-      <p>
-        Название: {{ track.track.name }}<br>
-        Исполнитель: {{ track.track.artist.name }}
-      </p>
-      {% if request.user.is_authenticated %}
-      <form method="POST" action="{% url 'add_track' %}">
-        {% csrf_token %}
-        <input type="hidden" name="pk" value="{{ track.track.id_musixmatch }}">
-        <input type="hidden" name="next" value="{{ request.path }}">
-        <input type="submit" value="Добавить">
-      </form>
-      {% endif %}
-  </li>
-</ul>
-{% endfor %}
+  {% for track in tracks %}
+  <ul>
+    <li>
+        <p>
+          Название: {{ track.track.name }}<br>
+          Исполнитель: {{ track.track.artist.name }}
+        </p>
+        {% if request.user.is_authenticated %}
+        <form method="POST" action="{% url 'add_track' %}">
+          {% csrf_token %}
+          <input type="hidden" name="pk" value="{{ track.track.id_musixmatch }}">
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <input type="submit" value="Добавить">
+        </form>
+        {% endif %}
+    </li>
+  </ul>
+  {% endfor %}
 {% else %}
 <h2>Данные по трекам отсутствуют</h2>
 {% endif %}

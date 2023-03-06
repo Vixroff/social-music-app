@@ -5,33 +5,80 @@
     <h1>Профиль:</h1>
     <ul>
         <li><p>{{ user.username }}</p></li>
+
     </ul>
 </div>
+
 <div>
-    <h1>Ваши треки:</h1>
-    {% if tracks.exists %}
-    {% for track in tracks %}
-    <div>
-        <p> {{ track.name }}</p>
-    </div>
-    {% endfor %}
+    <h1>Подписки:</h1>
+    {% if following.exists %}
+        {% for user in following %}
+        <a href="{% url 'profile_view' pk=user.id %}">
+            <p>{{ user.username }}</p>
+        </a>
+        {% endfor %}
     {% else %}
-        <p>Треков еще нет</p>
+        <p>Подписок еще нет</p>
     {% endif %}
 </div>
+
 <div>
-    <h1>Ваши плейлисты:</h1>
-    {% if playlists.exists %}
-    {% for playlist in playlists %}
-    <div>
-        <a href="{% url 'playlist' pk=playlist.pk %}">
-            <p> {{ playlist.name }}</p>
+    <h1>Подписчики:</h1>
+    {% if followers.exists %}
+        {% for user in followers %}
+        <a href="{% url 'profile_view' pk=user.id %}">
+            <p>{{ user.username }}</p>
         </a>
-        
-    </div>
-    {% endfor %}
+        {% endfor %}
     {% else %}
-        <p>Плейлистов еще нет</p>
+        <p>Подписчиков еще нет</p>
+    {% endif %}
+</div>
+
+<div>
+    <h1>Созданные плейлисты:</h1>
+    {% if created_playlists.exists %}
+    <ul>
+        {% for playlist in created_playlists %}
+            <li>
+                <a href="{% url 'playlist' pk=playlist.pk %}">
+                    <p>{{ playlist.name }}</p>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+        <p>Вы еще не создали плейлисты</p>
+    {% endif %}
+</div>
+
+<div>
+    <h1>Понравившиеся плейлисты</h1>
+    {% if liked_playlists.exists %}
+    <ul></ul>
+        {% for playlist in playlists %}
+        <li>
+            <a href="{% url 'playlist' pk=playlist.pk %}">
+                <p> {{ playlist.name }}</p>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>Вам еще не понравились какие-либо плейлисты</p>
+    {% endif %}
+</div>
+
+<div>
+    <h1>Добавленные треки:</h1>
+    {% if tracks.exists %}
+        {% for track in tracks %}
+        <div>
+            <p> {{ track.name }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+    <p>Треков еще нет</p>
     {% endif %}
 </div>
 

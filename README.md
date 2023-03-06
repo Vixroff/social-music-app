@@ -1,7 +1,7 @@
 ## Set up ##
 1) Activate MySQL server and Create database
 
-2) Activate env and Install dependencies:
+2) Activate env and install dependencies:
 ```
 python3 -m venv env
 source env/bin/activate

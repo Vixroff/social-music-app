@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.forms import ModelForm, CheckboxSelectMultiple, HiddenInput
+from django.forms import ModelForm, CheckboxSelectMultiple
 
 
 from .models import CustomUser, Playlists, Comments

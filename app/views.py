@@ -31,20 +31,25 @@ def index(request):
 
 @login_required(redirect_field_name='login')
 def profile(request):
-    user = CustomUser.objects.get(id=request.user.id)
-    tracks = user.added_tracks.all()
+    user = request.user
+    created_playlists = user.playlists.all()
     liked_playlists = user.added_playlists.all()
-    created_playlist = Playlists.objects.filter(creator=user)
+    tracks = user.added_tracks.all()
+    following = user.following.all()
+    followers = user.followers.all()
     return render(
         request, 
         'content/profile.html', 
         {
         'user': user,
+        'following': following,
+        'followers': followers,
         'tracks': tracks,
         'liked_playlists': liked_playlists,
-        'playlists': created_playlist
+        'created_playlists': created_playlists
         }
     )
+
 
 @login_required
 def add_track(request):
@@ -123,7 +128,7 @@ class PlaylistView(View):
     @method_decorator(login_required)
     def post(self, request, pk):
         user = request.user
-        if 'add' in request.POST:
+        if 'add_comment' in request.POST:
             form = CommentsForm(request.POST)
             if form.is_valid():
                 comment = form.save(commit=False)
@@ -132,15 +137,50 @@ class PlaylistView(View):
                 comment.save()
                 messages.success(request, 'Комментарий успешно добавлен')
                 return redirect('playlist', pk=pk)
-            messages.error(request, 'Что-то пошло не так!')
-            return redirect('playlist', pk=pk)
-        elif 'delete' in request.POST:
+            else:
+                messages.error(request, 'Что-то пошло не так!')
+                return redirect('playlist', pk=pk)
+        elif 'delete_comment' in request.POST:
             comment = Comments.objects.get(id=request.POST.get('comment_id')).delete()
             messages.success(request, 'Сообщение удалено')
             return redirect('playlist', pk=pk)
-        
 
-            
+
+class ProfileView(View):
+    template_name = "content/profile_view.html"
+
+    def get(self, request, pk):
+        try:
+            user = CustomUser.objects.get(id=pk)
+        except CustomUser.DoesNotExist:
+            messages.error("Пользователь с таким id не найден")
+            pass
+        return render(request, self.template_name, {'user': user})
+    
+    method_decorator(login_required)
+    def post(self, request, pk):
+        user = request.user
+        if 'follow' in request.POST:
+            user_to_follow = CustomUser.objects.get(id=request.POST.get('user'))
+            if user_to_follow == user:      
+                messages.error(request, 'Невозможная операция!')
+            elif user.is_follow(user_to_follow):
+                messages.warning(request, f'Вы были подписаны ранее на {user_to_follow}!')
+            else:
+                user.follow(user_to_follow) 
+                messages.success(request, f'{user_to_follow} добавлен в друзья')
+        elif 'unfollow' in request.POST:
+            user_to_unfollow = CustomUser.objects.get(id=request.POST.get('user'))
+            if user_to_unfollow == user:
+                messages.error(request, 'Невозможная операция!')
+            elif user.is_follow(user_to_unfollow) is False:
+                messages.error(request, f'Вы не были подписаны на {user_to_unfollow}')
+            else:
+                user.unfollow(user_to_unfollow)
+                messages.success(request, f'Вы успешно отписались от {user_to_unfollow}')
+        return redirect('profile_view', pk=pk)
+
+  
 class RegistrationView(View):
     registration_form = RegistrationForm
     template = 'registration/register.html'
@@ -172,42 +212,37 @@ class SearchView(View):
     api_tracks_query = 'track.search&page=1&page_size=5&s_track_rating=desc&q_track='
     api_artists_query = 'artist.search&page=1&page_size=5&q_artist='
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.tracks = None
-        self.artists = None
-
     def get(self, request):
-        self.user_query = request.GET.get('query')
-        if self.user_query == None or self.user_query == '':
+        user_query = request.GET.get('query')
+        if user_query == None or user_query == '':
             return render(
                 request,
                 self.template_name,
                 {
-                'tracks': self.tracks,
-                'artists': self.artists,
-                'query': self.user_query
+                'query': user_query
                 }
             )
         tracks_response = requests.get(
-            URL + self.api_tracks_query + self.user_query + APIKEY
+            URL + self.api_tracks_query + user_query + APIKEY
         ).json()
         artists_response = requests.get(
-            URL + self.api_artists_query + self.user_query + APIKEY
+            URL + self.api_artists_query + user_query + APIKEY
         ).json()
         api_handler1 = APIDataMixins(tracks_response)
         api_handler2 = APIDataMixins(artists_response)
         api_handler1.insert_to_db()
         api_handler2.insert_to_db()
-        self.tracks = api_handler1.get_data()
-        self.artists = api_handler2.get_data()
+        tracks = api_handler1.get_data()
+        artists = api_handler2.get_data()
+        profiles = CustomUser.objects.filter(username=user_query)
         return render(
             request,
             self.template_name,
             {
-            'tracks': self.tracks,
-            'artists': self.artists,
-            'query': self.user_query
+            'tracks': tracks,
+            'artists': artists,
+            'query': user_query,
+            'profiles': profiles
             }
         )
 
@@ -217,24 +252,20 @@ class TopArtistsView(View):
     template_name = 'content/top_artists.html'
     top_artists_query = 'chart.artists.get'
     params = f'?&page=1&page_size=7&format=json'
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.artists = None
     
     def get(self, request):
         response = requests.get(URL+self.top_artists_query+self.params+APIKEY).json()
         api_handler = APIDataMixins(response)
         api_handler.insert_to_db()
-        self.artists = api_handler.get_data()
-        return render(request, self.template_name, {'artists': self.artists})
+        artists = api_handler.get_data()
+        return render(request, self.template_name, {'artists': artists})
 
 
 class TopTracksView(View):
     model = Tracks
     template_name = 'content/top_tracks.html'
     top_tracks_query = 'chart.tracks.get'
-    params = f'?chart_name=mxmweekly&page=1&page_size=7&country=XW&f_has_lyrics=1'
+    params = f'?chart_name=mxmweekly&page=1&page_size=6'
     
     def get(self, request):
         track_response = requests.get(
