@@ -55,12 +55,19 @@
 <div>
     <h1>Понравившиеся плейлисты</h1>
     {% if liked_playlists.exists %}
-    <ul></ul>
-        {% for playlist in playlists %}
+    <ul>
+        {% for playlist in liked_playlists %}
         <li>
             <a href="{% url 'playlist' pk=playlist.pk %}">
                 <p> {{ playlist.name }}</p>
             </a>
+            <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
+                {% csrf_token %}
+                <input type="hidden" name="content" value="playlist">
+                <input type="hidden" name="pk" value="{{ playlist.id}}">
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" name="delete">Удалить плейлист</button>
+            </form>
         </li>
         {% endfor %}
     </ul>
@@ -78,14 +85,13 @@
             <p>
                 {{ track.name }} by {{ track.author }}
             </p>
-            {% if request.user.is_authenticated %}
-                  <form method="post" action="{% url 'track' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="pk" value="{{ track.id_musixmatch }}">
-                    <input type="hidden" name="next" value="{{ request.path }}">
-                    <input type="submit" name="add" value="Добавить">
-                  </form>
-            {% endif %}
+            <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
+                {% csrf_token %}
+                <input type="hidden" name="content" value="track">
+                <input type="hidden" name="pk" value="{{ track.id_musixmatch }}">
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" name="delete">Удалить трек</button>
+            </form>
         </li>
         {% endfor %}
     </ul>

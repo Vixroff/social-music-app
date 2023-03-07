@@ -22,5 +22,5 @@ urlpatterns = [
         path('top-artists', views.TopArtistsView.as_view(), name='top_artists'),
         path('top-tracks', views.TopTracksView.as_view(), name='top_tracks'), 
     ])),
-    path('tracks-manager', views.tracks_managing, name='track'),        
+    path('content-manager', views.content_manager, name='manager')        
 ]

@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from django.forms import ModelForm, CheckboxSelectMultiple
+from django.forms import ModelForm, CheckboxSelectMultiple, HiddenInput
 
 
 from .models import CustomUser, Playlists, Comments
@@ -20,19 +20,20 @@ class CreatePlaylistForm(ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
-        if user:
-            self.fields['tracks'].queryset = user.added_tracks.all()
+        self.fields['tracks'].queryset = user.added_tracks.all()
+        self.fields['creator'].initial = user.id
     
     class Meta:
         model = Playlists
-        fields = ['name','description', 'tracks']
+        fields = ['name','description', 'tracks', 'creator']
+        widgets = {
+            'creator': HiddenInput(),
+            'tracks': CheckboxSelectMultiple()
+        }
         labels = {
             'name': 'Название',
             'description': 'Описание',
             'tracks': 'Треки'
-        }
-        widgets = {
-            'tracks': CheckboxSelectMultiple()
         }
 
 

@@ -11,16 +11,18 @@
 </div>
 
 {% if request.user.is_authenticated %}
-<form method="post" action="{% url 'user' pk=user.id%}">
-    {% csrf_token %}
-    <input type="hidden" name="user" value="{{ user.id }}">
-    <button type="submit" name="follow">Подписаться</button>
-</form>
-<form method="post" action="{% url 'user' pk=user.id%}">
-    {% csrf_token %}
-    <input type="hidden" name="user" value="{{ user.id }}">
-    <button type="submit" name="unfollow">Отписаться</button>
-</form>
+<div>
+    <form method="post" action="{% url 'user' pk=user.id%}" style="display: inline-block;">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ user.id }}">
+        <button type="submit" name="follow">Подписаться</button>
+    </form>
+    <form method="post" action="{% url 'user' pk=user.id%}" style="display: inline-block;">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ user.id }}">
+        <button type="submit" name="unfollow">Отписаться</button>
+    </form>
+</div>
 {% endif %}
 
 <div>
@@ -86,11 +88,25 @@
 <div>
     <h1>Добавленные треки:</h1>
     {% if tracks.exists %}
+    <ul>
         {% for track in tracks %}
-        <div>
+        <li>
             <p> {{ track.name }}</p>
-        </div>
+            {% if request.user.is_authenticated %}
+                <div>
+                    <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
+                        {% csrf_token %}
+                        <input type="hidden" name="content" value="track">
+                        <input type="hidden" name="pk" value="{{ track.id_musixmatch }}">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" name="add">Добавить трек</button>
+                    </form>
+                </div>
+            {% endif %}
+        </li>
         {% endfor %}
+    </ul>
+        
     {% else %}
     <p>Треков еще нет</p>
     {% endif %}

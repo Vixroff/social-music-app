@@ -28,6 +28,51 @@ def index(request):
         'content': intro
     })
 
+@login_required
+def content_manager(request):
+    content = request.POST.get('content')
+    user = request.user
+    if content == 'playlist':
+        playlist = Playlists.objects.get(id=request.POST.get('pk'))
+        if 'add' in request.POST:
+            if user.added_playlists.filter(id=playlist.id).exists():
+                messages.success(request, f'Плейлист "{playlist.name}" был добавлен ранее')
+            else:
+                user.added_playlists.add(playlist)
+                user.save()
+                messages.success(request, f'Плейлист "{playlist.name}" уже успешно добавлен!')
+        elif 'delete' in request.POST:
+            if not user.added_playlists.filter(id=playlist.id).exists():
+                messages.error(request, 'Недоступное действие')
+            else:
+                user.added_playlists.remove(playlist)
+                user.save()
+                messages.success(request, f'Плейлист "{playlist.name}" успешно удален!')
+    elif content == 'track':
+        track = Tracks.objects.get(id_musixmatch=request.POST.get('pk'))
+        if 'add' in request.POST:
+            if user.added_tracks.filter(id=track.id).exists():
+                messages.success(request, f'Трек "{track.name}" уже был добавлен ранее')
+            else:
+                user.added_tracks.add(track)
+                user.save()
+                messages.success(request, f'Трек "{track.name}" успешно добавлен!')
+        elif 'delete' in request.POST:
+            if not user.added_tracks.filter(id=track.id).exists():
+                messages.error(request, 'Недоступное действие')
+            else:
+                user.added_tracks.remove(track)
+                user.save()
+                messages.success(request, f'Трек "{track.name}" успешно удален!')
+    next_url = request.POST.get('next')
+    query = request.POST.get('query')
+    if next_url and query:
+        return redirect(next_url+'?query='+query)
+    elif next_url:
+        return redirect(next_url)
+    else:
+        return redirect('profile')
+
 
 @login_required(redirect_field_name='login')
 def profile(request):
@@ -51,85 +96,26 @@ def profile(request):
     )
 
 
-@login_required
-def tracks_managing(request):
-    user = request.user
-    track = Tracks.objects.get(id_musixmatch=request.POST.get('pk'))
-    if 'add' in request.POST:
-        if user.added_tracks.filter(id=track.id).exists():
-            messages.success(request, f'Трек "{track.name}" был добавлен ранее')
-        else:
-            user.added_tracks.add(track)
-            user.save()
-            messages.success(request, f'Трек "{track.name}" успешно добавлен!')
-    elif 'delete' in request.POST:
-        if not user.added_tracks.filter(id=track.id).exists():
-            messages.error(request, 'Недоступное действие')
-        else:
-            user.added_tracks.remove(track)
-            user.save()
-            messages.success(request, f'Трек "{track.name}" успешно удален!')
-    next_url = request.POST.get('next')
-    query = request.POST.get('query')
-    if next_url and query:
-        return redirect(next_url+'?query='+query)
-    elif next_url:
-        return redirect(next_url)
-    else:
-        return redirect('profile')
-    
-
-            
-        
-
-
-
-
-    # if request.method == "POST":
-    #     track = Tracks.objects.get(id_musixmatch=request.POST.get('pk'))
-    #     user = request.user
-    #     if not user.added_tracks.filter(id=track.id).exists():
-    #         user.added_tracks.add(track)
-    #         messages.success(request, f'Трек "{track.name}" успешно добавлен!')
-    #     else:
-    #         messages.success(request, f'Трек "{track.name}" был добавлен ранее')
-    # next_url = request.POST.get('next')
-    # query = request.POST.get('query')
-    # if next_url and query:
-    #     return redirect(next_url+'?query='+query)
-    # elif next_url:
-    #     return redirect(next_url)
-    # else:
-    #     return redirect('profile')
-
-
-@method_decorator(
-    login_required(redirect_field_name='login'), name='dispatch'
-)
+@method_decorator(login_required, name='dispatch')
 class CreatePlaylistView(View):
     template_name = 'content/create_playlist.html'
 
     def get(self, request):
         form = CreatePlaylistForm(user=request.user)
-        return render(
-            request,
-            self.template_name,
-            {'form': form}
-        )
+        return render(request, self.template_name, {'form': form})
     
     def post(self, request):
         form = CreatePlaylistForm(request.POST, user=request.user)
         if form.is_valid():
-            playlist = form.save(commit=False)
-            playlist.creator = request.user
-            playlist.save()
+            playlist = form.save()
             messages.success(request, f'Плейлист "{playlist.name}" создан успешно')
             return redirect('profile')
-        return render(
-            request,
-            self.template_name,
-            {'form': form}
-        )
+        else:
+            messages.error(
+                request,
+                'Что-то пошло не так! Скорее всего у вас уже есть плейлист с таким именем! Но это не точно'
+            )
+            return render(request, self.template_name, {'form': form})
 
 
 class MyLoginView(LoginView):
@@ -235,15 +221,14 @@ class ProfileView(View):
 
   
 class RegistrationView(View):
-    registration_form = RegistrationForm
     template = 'registration/register.html'
 
     def get(self, request):
-        form = self.registration_form()
+        form = RegistrationForm()
         return render(request, self.template, {'form': form})
     
     def post(self, request):
-        form = self.registration_form(request.POST)
+        form = RegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -257,7 +242,7 @@ class RegistrationView(View):
                     field, error[0]
                     )
                 )
-        return render(request, self.template, {'form': form})
+            return render(request, self.template, {'form': form})
 
 
 class SearchView(View):

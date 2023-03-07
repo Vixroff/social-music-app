@@ -78,6 +78,9 @@ class Playlists(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     creator = models.ForeignKey(CustomUser, related_name='playlists', on_delete=models.CASCADE)
     tracks = models.ManyToManyField(Tracks, blank=True)
+
+    class Meta:
+        unique_together = ['name', 'creator']
     
     def __str__(self):
         return self.name

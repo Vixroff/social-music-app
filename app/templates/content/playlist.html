@@ -2,14 +2,46 @@
 
 {% block content %}
 <h1>Плейлист: {{ playlist.name }}</h1>
-<p>Создатель: {{ playlist.creator }}</p>
+<a href="{% url 'user' pk=playlist.creator.id %}">
+    <p>Создатель: {{ playlist.creator }}</p>
+</a>
 <p>Создан: {{ playlist.created_at }}</p>
+
+{% if request.user.is_authenticated %}
+    <div>
+        <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
+            {% csrf_token %}
+            <input type="hidden" name="content" value="playlist">
+            <input type="hidden" name="pk" value="{{ playlist.id}}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" name="add">Добавить плейлист</button>
+        </form>
+        <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
+            {% csrf_token %}
+            <input type="hidden" name="content" value="playlist">
+            <input type="hidden" name="pk" value="{{ playlist.id}}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" name="delete">Удалить плейлист</button>
+        </form>
+    </div>
+{% endif %}
 
 <h2>Треки</h2>
 {% for track in tracks %}
-<p>
-    Трек "{{ track.name }}" ({{ track.author }})
-</p>
+    <p>
+        Трек "{{ track.name }}" by {{ track.author }}
+    </p>
+    {% if request.user.is_authenticated %}
+    <div>
+        <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
+            {% csrf_token %}
+            <input type="hidden" name="content" value="track">
+            <input type="hidden" name="pk" value="{{ track.id_musixmatch }}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" name="add">Добавить трек</button>
+        </form>
+    </div>
+    {% endif %}
 {% endfor %}
 
 {% if request.user.is_authenticated %}
