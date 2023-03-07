@@ -14,12 +14,12 @@
           Исполнитель: {{ track.track.artist.name }}
         </p>
         {% if request.user.is_authenticated%}
-          <form method="post" action="{% url 'add_track' %}">
+          <form method="post" action="{% url 'track' %}">
             {% csrf_token %}
             <input type="hidden" name="pk" value="{{ track.track.id_musixmatch }}">
             <input type="hidden" name="next" value="{{ request.path }}">
             <input type="hidden" name="query" value="{{ query }}">
-            <input type="submit" value="Добавить">
+            <input type="submit" name="add" value="Добавить">
           </form>
         {% endif %}
     </li>
@@ -47,7 +47,7 @@
 <h2>Профили пользователей</h2>
 {% if profiles %}
 {% for profile in profiles %}
-  <a href="{% url 'profile_view' pk=profile.id %}">
+  <a href="{% url 'user' pk=profile.id %}">
     <p>Профиль {{ profile.username }}</p>
   </a>
 {% endfor %}

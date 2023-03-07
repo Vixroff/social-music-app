@@ -11,11 +11,11 @@
           Исполнитель: {{ track.track.artist.name }}
         </p>
         {% if request.user.is_authenticated %}
-        <form method="POST" action="{% url 'add_track' %}">
+        <form method="POST" action="{% url 'track' %}">
           {% csrf_token %}
           <input type="hidden" name="pk" value="{{ track.track.id_musixmatch }}">
           <input type="hidden" name="next" value="{{ request.path }}">
-          <input type="submit" value="Добавить">
+          <input type="submit" name="add" value="Добавить">
         </form>
         {% endif %}
     </li>

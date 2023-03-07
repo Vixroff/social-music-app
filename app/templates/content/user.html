@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div>
     <h1>Профиль:</h1>
     <ul>
@@ -8,6 +9,19 @@
 
     </ul>
 </div>
+
+{% if request.user.is_authenticated %}
+<form method="post" action="{% url 'user' pk=user.id%}">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.id }}">
+    <button type="submit" name="follow">Подписаться</button>
+</form>
+<form method="post" action="{% url 'user' pk=user.id%}">
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{ user.id }}">
+    <button type="submit" name="unfollow">Отписаться</button>
+</form>
+{% endif %}
 
 <div>
     <h1>Подписки:</h1>
@@ -72,26 +86,15 @@
 <div>
     <h1>Добавленные треки:</h1>
     {% if tracks.exists %}
-    <ul>
         {% for track in tracks %}
-        <li>
-            <p>
-                {{ track.name }} by {{ track.author }}
-            </p>
-            {% if request.user.is_authenticated %}
-                  <form method="post" action="{% url 'track' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="pk" value="{{ track.id_musixmatch }}">
-                    <input type="hidden" name="next" value="{{ request.path }}">
-                    <input type="submit" name="add" value="Добавить">
-                  </form>
-            {% endif %}
-        </li>
+        <div>
+            <p> {{ track.name }}</p>
+        </div>
         {% endfor %}
-    </ul>
     {% else %}
     <p>Треков еще нет</p>
     {% endif %}
 </div>
+
 
 {% endblock %}

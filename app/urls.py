@@ -15,12 +15,12 @@ urlpatterns = [
     path('content/', include([
         path('create-playlist/', views.CreatePlaylistView.as_view(), name='create_playlist'), 
         path('playlist/<int:pk>/', views.PlaylistView.as_view(), name='playlist'),
-        path('profile/<int:pk>/', views.ProfileView.as_view(), name='profile_view')
+        path('user/<int:pk>/', views.ProfileView.as_view(), name='user')
     ])),
     path('search/', include([
         path('search', views.SearchView.as_view(), name='search'),
         path('top-artists', views.TopArtistsView.as_view(), name='top_artists'),
         path('top-tracks', views.TopTracksView.as_view(), name='top_tracks'), 
     ])),
-    path('add_track', views.add_track, name='add_track'),        
+    path('tracks-manager', views.tracks_managing, name='track'),        
 ]

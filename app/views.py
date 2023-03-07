@@ -52,15 +52,23 @@ def profile(request):
 
 
 @login_required
-def add_track(request):
-    if request.method == "POST":
-        track = Tracks.objects.get(id_musixmatch=request.POST.get('pk'))
-        user = request.user
-        if not user.added_tracks.filter(id=track.id).exists():
-            user.added_tracks.add(track)
-            messages.success(request, f'Трек "{track.name}" успешно добавлен!')
-        else:
+def tracks_managing(request):
+    user = request.user
+    track = Tracks.objects.get(id_musixmatch=request.POST.get('pk'))
+    if 'add' in request.POST:
+        if user.added_tracks.filter(id=track.id).exists():
             messages.success(request, f'Трек "{track.name}" был добавлен ранее')
+        else:
+            user.added_tracks.add(track)
+            user.save()
+            messages.success(request, f'Трек "{track.name}" успешно добавлен!')
+    elif 'delete' in request.POST:
+        if not user.added_tracks.filter(id=track.id).exists():
+            messages.error(request, 'Недоступное действие')
+        else:
+            user.added_tracks.remove(track)
+            user.save()
+            messages.success(request, f'Трек "{track.name}" успешно удален!')
     next_url = request.POST.get('next')
     query = request.POST.get('query')
     if next_url and query:
@@ -69,6 +77,30 @@ def add_track(request):
         return redirect(next_url)
     else:
         return redirect('profile')
+    
+
+            
+        
+
+
+
+
+    # if request.method == "POST":
+    #     track = Tracks.objects.get(id_musixmatch=request.POST.get('pk'))
+    #     user = request.user
+    #     if not user.added_tracks.filter(id=track.id).exists():
+    #         user.added_tracks.add(track)
+    #         messages.success(request, f'Трек "{track.name}" успешно добавлен!')
+    #     else:
+    #         messages.success(request, f'Трек "{track.name}" был добавлен ранее')
+    # next_url = request.POST.get('next')
+    # query = request.POST.get('query')
+    # if next_url and query:
+    #     return redirect(next_url+'?query='+query)
+    # elif next_url:
+    #     return redirect(next_url)
+    # else:
+    #     return redirect('profile')
 
 
 @method_decorator(
@@ -147,15 +179,36 @@ class PlaylistView(View):
 
 
 class ProfileView(View):
-    template_name = "content/profile_view.html"
+    template_name = "content/user.html"
 
     def get(self, request, pk):
         try:
             user = CustomUser.objects.get(id=pk)
         except CustomUser.DoesNotExist:
             messages.error("Пользователь с таким id не найден")
-            pass
-        return render(request, self.template_name, {'user': user})
+            return redirect('index')
+        finally:
+            if request.user.is_authenticated and user == request.user:
+                messages.success(request, 'Это ваш аккаунт')
+                return redirect('profile')
+            else:
+                created_playlists = user.playlists.all()
+                liked_playlists = user.added_playlists.all()
+                tracks = user.added_tracks.all()
+                following = user.following.all()
+                followers = user.followers.all()
+                return render(
+                    request, 
+                    self.template_name, 
+                    {
+                    'user': user,
+                    'following': following,
+                    'followers': followers,
+                    'tracks': tracks,
+                    'liked_playlists': liked_playlists,
+                    'created_playlists': created_playlists
+                    }
+                )
     
     method_decorator(login_required)
     def post(self, request, pk):
@@ -178,7 +231,7 @@ class ProfileView(View):
             else:
                 user.unfollow(user_to_unfollow)
                 messages.success(request, f'Вы успешно отписались от {user_to_unfollow}')
-        return redirect('profile_view', pk=pk)
+        return redirect('user', pk=pk)
 
   
 class RegistrationView(View):
