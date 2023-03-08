@@ -2,7 +2,6 @@ from .models import Albums, Artists, Genres, Tracks
 
 
 class APIDataMixins:
-
     def __init__(self, api_response):
         if type(api_response) is not dict or not api_response.get('message'):
             raise ValueError

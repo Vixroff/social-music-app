@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <div>
     <h1>Профиль:</h1>
     <ul>
@@ -8,6 +9,21 @@
 
     </ul>
 </div>
+
+{% if request.user.is_authenticated %}
+<div>
+    <form method="post" action="{% url 'user' pk=user.id%}" style="display: inline-block;">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ user.id }}">
+        <button type="submit" name="follow">Подписаться</button>
+    </form>
+    <form method="post" action="{% url 'user' pk=user.id%}" style="display: inline-block;">
+        {% csrf_token %}
+        <input type="hidden" name="user" value="{{ user.id }}">
+        <button type="submit" name="unfollow">Отписаться</button>
+    </form>
+</div>
+{% endif %}
 
 <div>
     <h1>Подписки:</h1>
@@ -55,19 +71,12 @@
 <div>
     <h1>Понравившиеся плейлисты</h1>
     {% if liked_playlists.exists %}
-    <ul>
-        {% for playlist in liked_playlists %}
+    <ul></ul>
+        {% for playlist in playlists %}
         <li>
             <a href="{% url 'playlist' pk=playlist.pk %}">
                 <p> {{ playlist.name }}</p>
             </a>
-            <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
-                {% csrf_token %}
-                <input type="hidden" name="content" value="playlist">
-                <input type="hidden" name="pk" value="{{ playlist.id}}">
-                <input type="hidden" name="next" value="{{ request.path }}">
-                <button type="submit" name="delete">Удалить плейлист</button>
-            </form>
         </li>
         {% endfor %}
     </ul>
@@ -82,21 +91,23 @@
     <ul>
         {% for track in tracks %}
         <li>
-            <p>
-                {{ track.name }} by {{ track.author }}
-            </p>
-            <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
-                {% csrf_token %}
-                <input type="hidden" name="content" value="track">
-                <input type="hidden" name="pk" value="{{ track.id_musixmatch }}">
-                <input type="hidden" name="next" value="{{ request.path }}">
-                <button type="submit" name="delete">Удалить трек</button>
-            </form>
+            <p> {{ track.name }}</p>
+            {% if request.user.is_authenticated %}
+                <div>
+                    <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
+                        {% csrf_token %}
+                        <input type="hidden" name="content" value="track">
+                        <input type="hidden" name="pk" value="{{ track.id_musixmatch }}">
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" name="add">Добавить трек</button>
+                    </form>
+                </div>
+            {% endif %}
         </li>
         {% endfor %}
-    </ul>
+    </ul>       
     {% else %}
-    <p>Треков еще нет</p>
+        <p>Треков еще нет</p>
     {% endif %}
 </div>
 

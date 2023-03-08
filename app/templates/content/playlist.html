@@ -2,14 +2,81 @@
 
 {% block content %}
 <h1>Плейлист: {{ playlist.name }}</h1>
-<p>Создатель: {{ playlist.creator }}</p>
+<div>
+    <a href="{% url 'user' pk=playlist.creator.id %}">
+        <p>Создатель: {{ playlist.creator }}</p>
+    </a>
+    {% if owner %}
+        <p>Это ваш плейлист</p>
+    {% endif %}
+</div>
 <p>Создан: {{ playlist.created_at }}</p>
+
+{% if request.user.is_authenticated %}
+    <div>
+        {% if not owner %}
+        <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
+            {% csrf_token %}
+            <input type="hidden" name="content" value="playlist">
+            <input type="hidden" name="pk" value="{{ playlist.id}}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" name="add">Добавить плейлист</button>
+        </form>
+        {% endif %}
+        <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
+            {% csrf_token %}
+            <input type="hidden" name="content" value="playlist">
+            <input type="hidden" name="pk" value="{{ playlist.id}}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" name="delete">Удалить плейлист</button>
+        </form>
+    </div>
+{% endif %}
 
 <h2>Треки</h2>
 {% for track in tracks %}
-<p>
-    Трек "{{ track.name }}" ({{ track.author }})
-</p>
-
+    <p>
+        Трек "{{ track.name }}" by {{ track.author }}
+    </p>
+    {% if request.user.is_authenticated and not owner %}
+    <div>
+        <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
+            {% csrf_token %}
+            <input type="hidden" name="content" value="track">
+            <input type="hidden" name="pk" value="{{ track.id_musixmatch }}">
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" name="add">Добавить трек</button>
+        </form>
+    </div>
+    {% endif %}
 {% endfor %}
+
+{% if request.user.is_authenticated %}
+    <form method="post" action="{% url 'playlist' pk=playlist.id %}">
+        {% csrf_token %}
+        <h3>{{ form.message.label }}</h3>
+        <div>{{ form.message }}</div>
+        <button type="submit" name="add_comment">Отправить</button>
+    </form>
+{% endif %}
+<h3>Комментарии</h3>
+{% if comments %}
+    {% for comment in comments %}
+    <div>
+        <h4>Комментарий пользователя {{ comment.author }}</h4>
+        <p>{{ comment.message }}</p>
+        <span>{{ comment.created_at }}</span>
+        {% if request.user == comment.author or owner %}
+        <form method="post" action="{% url 'playlist' pk=playlist.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="comment_id" value="{{ comment.id }}">
+            <button type="submit" name="delete_comment">Удалить</button>
+        </form>
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <p>Комментарии отсутствуют </p>
+{% endif %}
+
 {% endblock %}
