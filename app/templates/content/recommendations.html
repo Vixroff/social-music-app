@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Рекоммендации для вас</h1>
+<div>
+    <h2>Профили:</h2>
+    {% if request.user.is_authenticated %}
+        {% if users %}
+            {% for user in users %}
+            <a href="{% url 'user' pk=user.id %}">
+                <p>{{ user.username }}</p>
+            </a>
+            {% endfor %}
+        {% else %}
+            <p>
+                Для вас рекоммендаций еще нет! (либо у вас нет подписок, либо их нет на кого подписаны вы)
+            </p>
+        {% endif %}
+    {% else %}
+        <p>Доступно только авторизированным пользователям</p>
+    {% endif %}
+</div>
+
+{% endblock %}

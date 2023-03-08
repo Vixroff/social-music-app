@@ -21,6 +21,18 @@ class CustomUser(AbstractUser):
     
     def is_follow(self, user):
         return self.following.filter(id=user.id).exists()
+    
+    def get_users_recommendations(self):
+        recommendations = []
+        following = self.following.all()
+        if following.exists():
+            for user in following:
+                user_following = user.following.all()
+                for usr in user_following:
+                    if usr == self or usr in following or usr in recommendations:
+                        continue
+                    recommendations.append(usr)
+        return recommendations
 
 
 class Albums(models.Model):

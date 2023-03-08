@@ -28,6 +28,7 @@ def index(request):
         'content': intro
     })
 
+
 @login_required
 def content_manager(request):
     content = request.POST.get('content')
@@ -42,7 +43,11 @@ def content_manager(request):
                 user.save()
                 messages.success(request, f'Плейлист "{playlist.name}" уже успешно добавлен!')
         elif 'delete' in request.POST:
-            if not user.added_playlists.filter(id=playlist.id).exists():
+            if playlist.creator == user:
+                playlist.delete()
+                messages.success(request, f'Плейлист "{playlist.name}" успешно удален!')
+                return redirect('profile')
+            elif not user.added_playlists.filter(id=playlist.id).exists():
                 messages.error(request, 'Недоступное действие')
             else:
                 user.added_playlists.remove(playlist)
@@ -128,10 +133,13 @@ class PlaylistView(View):
     template_name = 'content/playlist.html'
 
     def get(self, request, pk):
+        owner = False
         playlist = Playlists.objects.get(pk=pk)
         tracks = playlist.tracks.all()
         comments = Comments.objects.filter(playlist=playlist)
         comment_form = CommentsForm()
+        if request.user.is_authenticated and request.user == playlist.creator:
+            owner = True
         return render(
             request, 
             self.template_name, 
@@ -140,6 +148,7 @@ class PlaylistView(View):
             'tracks': tracks,
             'comments': comments,
             'form': comment_form,
+            'owner': owner
             }
         )
     
@@ -218,6 +227,16 @@ class ProfileView(View):
                 user.unfollow(user_to_unfollow)
                 messages.success(request, f'Вы успешно отписались от {user_to_unfollow}')
         return redirect('user', pk=pk)
+
+
+class RecommendationsView(View):
+    template_name = 'content/recommendations.html'
+
+    def get(self, request):
+        users_to_recommend = []
+        if request.user.is_authenticated:
+            users_to_recommend = request.user.get_users_recommendations()
+        return render(request, self.template_name, {'users': users_to_recommend})
 
   
 class RegistrationView(View):
