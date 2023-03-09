@@ -12,18 +12,18 @@ body{
     height: 100%;   
 }
 
-.lhlh{
-    font: 1em sans-serif;
-}
-
 section{
     margin-bottom: 20px;
 }
 
 a{
-    text-decoration: none;
+    /* text-decoration: none; */
     color: #000;
 }
+
+/* .lol{
+    color: #000;
+} */
 
 ul{
     margin: 0;
@@ -32,17 +32,33 @@ ul{
 }
 
 .navbar{
+    background: #fff;
     border-radius: 5px;
     display: flex;
-    justify-content: space-between;
+    align-items: center;
     width: 100%;
-    background: #fff;
-    padding: 20px 120px;
+    height: 55px;
+    padding: 5px 120px;
+}
+
+.navbar div{
+    margin-right: 16px;
+    display: inline-block;
 }
 
 .navbar a{
     font-weight: 800;
 }
+
+.navbar-right{
+    margin-left: auto;
+}
+
+.navbar .search-bar{
+    height: 30px;
+    width: 300px;
+}
+
 
 .main{
     display: flex;
