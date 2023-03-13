@@ -3,6 +3,5 @@ env
 __pycache__
 .DS_Store
 personal.ini
-lala.html
 docker.info
 db_data

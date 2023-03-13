@@ -17,11 +17,13 @@ services:
   
   app:
     container_name: social-music-app
-    build: .
-    ports:
-      - "8000:8000"
     depends_on:
       - mysql
+    build: .
+    command:
+      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
     environment:
         SECRET_KEY: "${SECRET_KEY}"
         DB_NAME: "${DB_NAME}"
