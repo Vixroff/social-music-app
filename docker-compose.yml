@@ -13,12 +13,13 @@ services:
     volumes:
       - ./db_data:/var/lib/mysql
     ports: 
-      - "${DB_PORT}:3306"
+      - "33060:${DB_PORT:-3306}"
   
   app:
     container_name: social-music-app
     depends_on:
-      - mysql
+      mysql:
+        condition: "service_started"
     build: .
     command:
       sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
@@ -30,7 +31,7 @@ services:
         DB_USER: "${DB_USER}"
         DB_PASSWORD: "${DB_PASSWORD}"
         DB_HOST: "${DB_HOST}"
-        DB_PORT: '${DB_PORT}'
+        DB_PORT: "${DB_PORT:-3306}"
         MUSIXMATCH_API: "${MUSIXMATCH_API}"
     volumes:
      - .:/app_data
