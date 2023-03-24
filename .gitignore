@@ -1,7 +1,9 @@
-.env
+.*
+
 env
+
 __pycache__
-.DS_Store
-personal.ini
-docker.info
+requirements-dev.txt
+django.info
+
 db_data
