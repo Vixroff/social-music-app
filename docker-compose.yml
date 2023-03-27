@@ -14,12 +14,11 @@ services:
       - "8000:8000"
     environment:
         SECRET_KEY: "${SECRET_KEY}"
+        MUSIXMATCH_API: "${MUSIXMATCH_API}"
         DB_NAME: "${DB_NAME}"
         DB_USER: "${DB_USER}"
         DB_PASSWORD: "${DB_PASSWORD}"
         DB_HOST: "${DB_HOST}"
-        DB_PORT: "${DB_PORT:-3306}"
-        MUSIXMATCH_API: "${MUSIXMATCH_API}"
     volumes:
      - .:/app_data
   
@@ -39,4 +38,4 @@ services:
     volumes:
       - ./db_data:/var/lib/mysql
     ports: 
-      - "33060:${DB_PORT:-3306}"
+      - "${DB_CONTAINER_PORT:-33060}:3306"
