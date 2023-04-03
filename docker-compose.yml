@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  
+  app:
+    container_name: social-music-app
+    depends_on:
+      mysql:
+        condition: "service_healthy"
+    build: .
+    command:
+      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    environment:
+        SECRET_KEY: "${SECRET_KEY}"
+        MUSIXMATCH_API: "${MUSIXMATCH_API}"
+        DB_NAME: "${DB_NAME}"
+        DB_USER: "${DB_USER}"
+        DB_PASSWORD: "${DB_PASSWORD}"
+        DB_HOST: "${DB_HOST}"
+    volumes:
+     - .:/app_data
+  
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: "${DB_NAME}"
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+      MYSQL_USER: "${DB_USER}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 1s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - ./db_data:/var/lib/mysql
+    ports: 
+      - "${DB_CONTAINER_PORT:-33060}:3306"

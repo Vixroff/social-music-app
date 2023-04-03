@@ -13,10 +13,10 @@
             <td>{{ form.password }}</td>
         </tr>
     </table>
-    <input type="submit" value="login">
     <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit">Отправить</button>
 </form>
-<p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
+<!-- <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p> -->
 <p><a href="{% url 'registration' %}">Зарегистрироваться</a></p>
 
 {% endblock %}

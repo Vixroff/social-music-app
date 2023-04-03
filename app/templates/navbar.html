@@ -1,12 +1,26 @@
 <section class="navbar">
-    <a href="/">Music App</a>
-    <form method="get" action="{% url 'search' %}">
-        <input type="text" placeholder="Поиск..." name="query">
-    </form>
-    {% if not request.user.is_authenticated %}
-        <a href="{% url 'login' %}">Войти</a>
-    {% else %}
-        <a href="{% url 'profile' %}">Мой профиль</a>
-        <a href="{% url 'logout' %}">Выйти</a>
-    {% endif %}
+    <div>
+        <a href="/">Music App</a>
+    </div>
+    <div>
+        <form method="get" action="{% url 'search' %}">
+            <div>
+                <input class="search-bar" type="text" placeholder="Найти трек, исполнителя, пользователя..." name="query">
+            </div>
+        </form>
+    </div>
+    <div class="navbar-right">
+        {% if not request.user.is_authenticated %}
+            <div class="navbar-right">
+                <a href="{% url 'login' %}">Войти</a>
+            </div> 
+        {% else %}
+            <div>
+                <a href="{% url 'profile' %}">Мой профиль</a>
+            </div>
+            <div>
+                <a href="{% url 'logout' %}">Выйти</a>
+            </div>  
+        {% endif %}
+    </div> 
 </section>

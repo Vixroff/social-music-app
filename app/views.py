@@ -305,7 +305,6 @@ class SearchView(View):
 
 
 class TopArtistsView(View):
-    model = Artists
     template_name = 'content/top_artists.html'
     top_artists_query = 'chart.artists.get'
     params = f'?&page=1&page_size=7&format=json'
@@ -319,7 +318,6 @@ class TopArtistsView(View):
 
 
 class TopTracksView(View):
-    model = Tracks
     template_name = 'content/top_tracks.html'
     top_tracks_query = 'chart.tracks.get'
     params = f'?chart_name=mxmweekly&page=1&page_size=6'

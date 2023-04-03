@@ -18,7 +18,7 @@
               <form method="post" action="{% url 'manager' %}" style="display: inline-block;">
                   {% csrf_token %}
                   <input type="hidden" name="content" value="track">
-                  <input type="hidden" name="pk" value="{{ track.id_musixmatch }}">
+                  <input type="hidden" name="pk" value="{{ track.track.id_musixmatch }}">
                   <input type="hidden" name="next" value="{{ request.path }}">
                   <button type="submit" name="add">Добавить трек</button>
               </form>
