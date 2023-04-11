@@ -1,9 +1,6 @@
 .*
-
 env
-
 __pycache__
 requirements-dev.txt
 django.info
-
 db_data
