@@ -1,7 +1,6 @@
 from django.test import Client, TestCase
 from django.urls import reverse
 
-
 from app.models import CustomUser, Tracks, Playlists
 
 

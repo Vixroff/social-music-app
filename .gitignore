@@ -1,6 +1,7 @@
 .*
 env
 __pycache__
+.DS_Store
 requirements-dev.txt
 django.info
 db_data

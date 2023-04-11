@@ -52,7 +52,7 @@ Create ".env" file at root directory and define next personal variables:
 
 Create database with following command
 ```
-python -m db
+poetry run python db.py
 ```
 **!! Be sure your MySQL server is enabled.** 
 
