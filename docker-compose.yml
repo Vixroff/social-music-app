@@ -7,7 +7,7 @@ services:
     depends_on:
       mysql:
         condition: "service_healthy"
-    build: .
+    build: ./app
     command:
       sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     ports:
@@ -34,7 +34,7 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 1s
       timeout: 3s
-      retries: 3
+      retries: 5
     volumes:
       - ./db_data:/var/lib/mysql
     ports: 
