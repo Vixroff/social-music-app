@@ -39,14 +39,14 @@ Check that your maschine has installed:
 - MySQL Server
 - Poetry
 
-Create ".env" file at root directory and define next personal variables:
+Create ".env" file at the root directory and define next personal variables:
 | name | value | description |
 | :---- | :----- | :----------- |
-| SECRET_KEY | "<your-secret-key\>" | Secret key of application. It is needed to secure app. |
-|MUSIXMATCH_API| "<your_api_key\>" | API key of musixmatch service |
-| DB_USER | "<your-username\>" | MySQL profile username |
-| DB_PASSWORD | "<your-password\>" | MySQL profile password |
-| DB_NAME | "<db-name\>" | Database scheme name |
+| SECRET_KEY | "<secret-key\>" | Secret key of application. It is needed to secure app. |
+|MUSIXMATCH_API| "<api_key\>" | API key of musixmatch service |
+| DB_USER | "<username\>" | MySQL profile username |
+| DB_PASSWORD | "<password\>" | MySQL profile password |
+| DB_NAME | "<name\>" | Set database scheme name |
 | DB_HOST | **"localhost"** | **Constant value** |
 | DB_PORT | "<port-value\>" |  Default=3306.<br>MySQL server port |
 
@@ -69,16 +69,17 @@ And its done!! Go to http://127.0.0.1:8000 and use it.
 This way allows you to create independent network between application and database as isolated containers.<br>
 **!! Installed Docker is requiered.**
 
-Create ".env" file and add following variables
+Create ".env" file at the root directory and add following variables
 | name | value | description |
 | :---- | :----- | :----------- |
-| SECRET_KEY | "<your-secret-key\>" | Secret key of application. It is needed to secure app. |
-|MUSIXMATCH_API| "<your_api_key\>" | API key of musixmatch service |
-| DB_USER | "<your-username\>" | MySQL profile username |
-| DB_PASSWORD | "<your-password\>" | MySQL profile password |
-| DB_NAME | "<db-name\>" | Database scheme name |
+| SECRET_KEY | "<secret-key\>" | Secret key of application. It is needed to secure app. |
+|MUSIXMATCH_API| "<api_key\>" | API key of musixmatch service |
+| DB_ROOT_PASSWORD | "\<root_password>" | Set password of database root user |
+| DB_USER | "<username\>" | MySQL profile username |
+| DB_PASSWORD | "<password\>" | MySQL profile password |
+| DB_NAME | "<name\>" | Set database scheme name |
 | DB_HOST | **"mysql"** | **Constant value**<br> |
-| DB_CONTAINER_PORT | "<port-value\>" | Default=33060.<br>Database container port |
+| DB_CONTAINER_PORT | "<port\>" | Default=33060.<br>Database container port |
 
 Build images and run application:
 ```
