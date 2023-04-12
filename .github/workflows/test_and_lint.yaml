@@ -1,0 +1,44 @@
+name: test and lint
+on:
+  push:
+    branches: ['**']
+  pull request:
+    branches: [main]
+    
+jobs:
+  test:
+    name: test application
+    runs-on: ubuntu-latest
+    steps:
+      - name: "checkout repository"
+        uses: action/checkout@v3   
+      - name: "set up python"
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"  
+      - name: "install poetry"
+        run: pip install poetry    
+      - name: "install dependencies"
+        run: poetry install   
+      - name: "test"
+        run: make test
+  lint:
+    name: flake8 lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: "checkout repository"
+        uses: action/checkout@v3   
+      - name: "set up python"
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"  
+      - name: "install poetry"
+        run: pip install poetry    
+      - name: "install dependencies"
+        run: poetry install   
+      - name: "lint"
+        run: poetry run flake8
+
+    
+
+
