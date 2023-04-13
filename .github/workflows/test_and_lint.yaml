@@ -2,44 +2,67 @@ name: test and lint
 on:
   push:
     branches: ['**']
-  pull_request:
-    branches: [main]
+
+env:
+  DB_NAME: 'name'
+  DB_USER: 'user'
+  DB_PASSWORD: 'password'
+  DB_HOST: 'localhost'
     
 jobs:
   test:
-    name: test application
+    name: test
     runs-on: ubuntu-latest
     steps:
-      - name: "Install Docker"
-        uses: docker/setup-docker@v1
-  #     - name: "checkout repository"
-  #       uses: actions/checkout@v2   
-  #     - name: "set up python"
-  #       uses: actions/setup-python@v3
-  #       with:
-  #         python-version: "3.11"  
-  #     - name: "install poetry"
-  #       run: pip install poetry    
-  #     - name: "install dependencies"
-  #       run: poetry install   
-  #     - name: "test"
-  #       run: make test
-  # lint:
-  #   name: flake8 lint
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: "checkout repository"
-  #       uses: actions/checkout@v2   
-  #     - name: "set up python"
-  #       uses: actions/setup-python@v3
-  #       with:
-  #         python-version: "3.11"  
-  #     - name: "install poetry"
-  #       run: pip install poetry    
-  #     - name: "install dependencies"
-  #       run: poetry install   
-  #     - name: "lint"
-  #       run: poetry run flake8
+      - 
+        name: "Pull source code"
+        uses: actions/checkout@v3
+      -
+        name: "Set up python"
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"
+      - 
+        name: "Install poetry"
+        run: pip install poetry
+      -
+        name: "Install dependencies"
+        run: poetry install
+      -
+        name: "Set up MySQL"
+        run: |
+          sudo /etc/init.d/mysql start
+          poetry run python db.py
+          make migrate
+      -
+        name: "Test"
+        run: make test
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Pull source code"
+        uses: actions/checkout@v3
+      -
+        name: "Set up python"
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"
+      - 
+        name: "Install poetry"
+        run: pip install poetry
+      -
+        name: "Install dependencies"
+        run: poetry install
+      -
+        name: "Set up MySQL"
+        run: |
+          sudo /etc/init.d/mysql start
+          poetry run python db.py
+          make migrate
+      -
+        name: "Lint"
+        run: poetry run flake8
 
     
 
