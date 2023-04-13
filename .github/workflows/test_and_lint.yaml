@@ -5,9 +5,10 @@ on:
 
 env:
   DB_NAME: 'name'
-  DB_USER: 'user'
-  DB_PASSWORD: 'password'
+  DB_USER: root
+  DB_PASSWORD: 'root'
   DB_HOST: 'localhost'
+  SECRET_KEY: 'lol'
     
 jobs:
   test:
