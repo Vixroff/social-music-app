@@ -14,13 +14,13 @@ class CustomUser(AbstractUser):
 
     def follow(self, user):
         self.following.add(user)
-    
+
     def unfollow(self, user):
         self.following.remove(user)
-    
+
     def is_follow(self, user):
         return self.following.filter(id=user.id).exists()
-    
+
     def get_users_recommendations(self):
         recommendations = []
         following = self.following.all()
@@ -41,7 +41,7 @@ class Albums(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def __repr__(self):
         return "Album(id_musixmatch={}, name={})".format(self.id_musixmatch, self.name)
 
@@ -52,7 +52,7 @@ class Artists(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def __repr__(self):
         return "Author(id_musixmatch={}, name={})".format(self.id_musixmatch, self.name)
 
@@ -63,7 +63,7 @@ class Genres(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     def __repr__(self):
         return "Genre(id_musixmatch={}, name={})".format(self.id_musixmatch, self.name)
 
@@ -74,10 +74,10 @@ class Tracks(models.Model):
     album = models.ForeignKey(Albums, on_delete=models.RESTRICT, null=True)
     author = models.ForeignKey(Artists, on_delete=models.RESTRICT, null=True)
     genres = models.ManyToManyField(Genres)
-    
+
     def __str__(self):
         return self.name
-    
+
     def __repr__(self):
         return "Track(id_musixmatch={}, name={})".format(self.id_musixmatch, self.name)
 
@@ -92,13 +92,13 @@ class Playlists(models.Model):
 
     class Meta:
         unique_together = ['name', 'creator']
-    
+
     def __str__(self):
         return self.name
-    
+
     def __repr__(self):
         return "Playlist(name={}, creator={})".format(self.name, self.creator)
-    
+
 
 class Comments(models.Model):
     message = models.TextField()
@@ -108,11 +108,11 @@ class Comments(models.Model):
 
     def __repr__(self):
         return "Comment(author={}, playlist={}, created_at={})".format(
-            self.author, 
-            self.playlist, 
+            self.author,
+            self.playlist,
             self.created_at
         )
-    
+
     def __str__(self):
         return self.message
 

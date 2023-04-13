@@ -1,20 +1,23 @@
-from .models import Albums, Artists, Genres, Tracks 
+from .models import Albums, Artists, Genres, Tracks
 
 
 class APIDataMixins:
+    """Class handles MusixMatch API response from request to tracks or artists."""
     def __init__(self, api_response):
         if type(api_response) is not dict or not api_response.get('message'):
             raise ValueError
         self.header = dict(api_response['message']['header'])
         self.body = dict(api_response['message']['body'])
-    
+
     def _check_status(self):
+        """Check response status code."""
         if self.header.get('status_code') == 200:
             return True
         else:
             return False
-    
+
     def get_data(self):
+        """Method returns formatted response data."""
         if not self._check_status():
             return None
         data = []
@@ -27,26 +30,28 @@ class APIDataMixins:
         elif key == 'artist_list':
             data += self._get_artists_data(value)
         return data
-        
+
     def _get_artists_data(self, data):
+        """Method returns tracks authors data."""
         result = []
         for row in data:
             artist = {
                 'artist': {
-                'id_musixmatch': row['artist']['artist_id'],
-                'name': row['artist']['artist_name']
+                    'id_musixmatch': row['artist']['artist_id'],
+                    'name': row['artist']['artist_name']
                 }
             }
             result.append(artist)
         return result
 
     def _get_tracks_data(self, data):
+        """Method returns tracks data."""
         result = []
         for row in data:
             track = {
                     'track': {
-                    'id_musixmatch': row['track']['track_id'],
-                    'name': row['track']['track_name'],
+                        'id_musixmatch': row['track']['track_id'],
+                        'name': row['track']['track_name'],
                     }
                 }
             album = {
@@ -69,8 +74,9 @@ class APIDataMixins:
             track['track']['genres'] = genres
             result.append(track)
         return result
-    
+
     def insert_to_db(self):
+        """Methods fills database with response's data."""
         data = self.get_data()
         if data:
             for obj in data:
@@ -81,7 +87,7 @@ class APIDataMixins:
                         continue
                     obj_to_save = Tracks.objects.create(
                         id_musixmatch=obj_data['id_musixmatch'],
-                        name=obj_data['name'], 
+                        name=obj_data['name'],
                     )
                     album = Albums.objects.get_or_create(
                         id_musixmatch=obj_data['album']['id_musixmatch'],
