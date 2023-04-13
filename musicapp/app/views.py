@@ -1,7 +1,6 @@
 import os
 import requests
 
-
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -10,9 +9,8 @@ from django.shortcuts import render, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 
-
 from .forms import CreatePlaylistForm, RegistrationForm, CommentsForm
-from .models import Artists, Tracks, Playlists, CustomUser, Comments
+from .models import Tracks, Playlists, CustomUser, Comments
 from .mixins import APIDataMixins
 
 
@@ -88,15 +86,15 @@ def profile(request):
     following = user.following.all()
     followers = user.followers.all()
     return render(
-        request, 
-        'content/profile.html', 
+        request,
+        'content/profile.html',
         {
-        'user': user,
-        'following': following,
-        'followers': followers,
-        'tracks': tracks,
-        'liked_playlists': liked_playlists,
-        'created_playlists': created_playlists
+            'user': user,
+            'following': following,
+            'followers': followers,
+            'tracks': tracks,
+            'liked_playlists': liked_playlists,
+            'created_playlists': created_playlists
         }
     )
 
@@ -108,7 +106,7 @@ class CreatePlaylistView(View):
     def get(self, request):
         form = CreatePlaylistForm(user=request.user)
         return render(request, self.template_name, {'form': form})
-    
+
     def post(self, request):
         form = CreatePlaylistForm(request.POST, user=request.user)
         if form.is_valid():
@@ -141,17 +139,17 @@ class PlaylistView(View):
         if request.user.is_authenticated and request.user == playlist.creator:
             owner = True
         return render(
-            request, 
-            self.template_name, 
+            request,
+            self.template_name,
             {
-            'playlist': playlist,
-            'tracks': tracks,
-            'comments': comments,
-            'form': comment_form,
-            'owner': owner
+                'playlist': playlist,
+                'tracks': tracks,
+                'comments': comments,
+                'form': comment_form,
+                'owner': owner
             }
         )
-    
+
     @method_decorator(login_required)
     def post(self, request, pk):
         user = request.user
@@ -193,29 +191,29 @@ class ProfileView(View):
                 following = user.following.all()
                 followers = user.followers.all()
                 return render(
-                    request, 
-                    self.template_name, 
+                    request,
+                    self.template_name,
                     {
-                    'user': user,
-                    'following': following,
-                    'followers': followers,
-                    'tracks': tracks,
-                    'liked_playlists': liked_playlists,
-                    'created_playlists': created_playlists
+                        'user': user,
+                        'following': following,
+                        'followers': followers,
+                        'tracks': tracks,
+                        'liked_playlists': liked_playlists,
+                        'created_playlists': created_playlists
                     }
                 )
-    
-    method_decorator(login_required)
+
+    @method_decorator(login_required)
     def post(self, request, pk):
         user = request.user
         if 'follow' in request.POST:
             user_to_follow = CustomUser.objects.get(id=request.POST.get('user'))
-            if user_to_follow == user:      
+            if user_to_follow == user:
                 messages.error(request, 'Невозможная операция!')
             elif user.is_follow(user_to_follow):
                 messages.warning(request, f'Вы были подписаны ранее на {user_to_follow}!')
             else:
-                user.follow(user_to_follow) 
+                user.follow(user_to_follow)
                 messages.success(request, f'{user_to_follow} добавлен в друзья')
         elif 'unfollow' in request.POST:
             user_to_unfollow = CustomUser.objects.get(id=request.POST.get('user'))
@@ -238,14 +236,14 @@ class RecommendationsView(View):
             users_to_recommend = request.user.get_users_recommendations()
         return render(request, self.template_name, {'users': users_to_recommend})
 
-  
+
 class RegistrationView(View):
     template = 'registration/register.html'
 
     def get(self, request):
         form = RegistrationForm()
         return render(request, self.template, {'form': form})
-    
+
     def post(self, request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -256,9 +254,9 @@ class RegistrationView(View):
             errors = form.errors.as_data()
             for field, error in errors.items():
                 messages.error(
-                    request, 
+                    request,
                     'Ошибка в поле {}: {}'.format(
-                    field, error[0]
+                        field, error[0]
                     )
                 )
             return render(request, self.template, {'form': form})
@@ -271,12 +269,12 @@ class SearchView(View):
 
     def get(self, request):
         user_query = request.GET.get('query')
-        if user_query == None or user_query == '':
+        if user_query is None or user_query == '':
             return render(
                 request,
                 self.template_name,
                 {
-                'query': user_query
+                    'query': user_query
                 }
             )
         tracks_response = requests.get(
@@ -296,10 +294,10 @@ class SearchView(View):
             request,
             self.template_name,
             {
-            'tracks': tracks,
-            'artists': artists,
-            'query': user_query,
-            'profiles': profiles
+                'tracks': tracks,
+                'artists': artists,
+                'query': user_query,
+                'profiles': profiles
             }
         )
 
@@ -307,8 +305,8 @@ class SearchView(View):
 class TopArtistsView(View):
     template_name = 'content/top_artists.html'
     top_artists_query = 'chart.artists.get'
-    params = f'?&page=1&page_size=7&format=json'
-    
+    params = '?&page=1&page_size=7&format=json'
+
     def get(self, request):
         response = requests.get(URL+self.top_artists_query+self.params+APIKEY).json()
         api_handler = APIDataMixins(response)
@@ -320,8 +318,8 @@ class TopArtistsView(View):
 class TopTracksView(View):
     template_name = 'content/top_tracks.html'
     top_tracks_query = 'chart.tracks.get'
-    params = f'?chart_name=mxmweekly&page=1&page_size=6'
-    
+    params = '?chart_name=mxmweekly&page=1&page_size=6'
+
     def get(self, request):
         track_response = requests.get(
             URL + self.top_tracks_query + self.params + APIKEY
@@ -331,6 +329,6 @@ class TopTracksView(View):
         self.tracks = api_handler.get_data()
         return render(
             request,
-            self.template_name, 
+            self.template_name,
             {'tracks': self.tracks}
         )

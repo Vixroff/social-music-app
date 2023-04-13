@@ -1,7 +1,6 @@
 from django.test import Client, TestCase
 from django.urls import reverse
 
-
 from app.models import CustomUser, Tracks, Playlists
 
 
@@ -21,25 +20,25 @@ class CreatePlaylistViewTest(TestCase):
             Tracks.objects.create(name='testtrack3', id_musixmatch=3)
         ]
         self.user.added_tracks.set(self.tracks)
-    
+
     def test_request_get_anonymous_user(self):
         response = self.client.get(self.url)
         self.assertEqual(302, response.status_code)
         self.assertEqual(reverse('login') + '?next=' + self.url, response.url)
-    
+
     def test_request_get_authenticated_user(self):
         self.client.login(username=self.user.username, password='test123test')
         response = self.client.get(self.url)
         self.assertEqual(200, response.status_code)
-    
+
     def test_request_post_authenticated_user(self):
         self.client.login(username=self.user.username, password='test123test')
         response = self.client.post(
             self.url,
             {
-            'name': 'playlist_test_name',
-            'creator': self.user.id,
-            'tracks': [self.tracks[0].id, self.tracks[1].id]
+                'name': 'playlist_test_name',
+                'creator': self.user.id,
+                'tracks': [self.tracks[0].id, self.tracks[1].id]
             },
             follow=True
         )

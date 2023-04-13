@@ -1,0 +1,70 @@
+name: test and lint
+on:
+  push:
+    branches: ['**']
+
+env:
+  DB_NAME: 'name'
+  DB_USER: root
+  DB_PASSWORD: 'root'
+  DB_HOST: 'localhost'
+  SECRET_KEY: 'lol'
+    
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: "Pull source code"
+        uses: actions/checkout@v3
+      -
+        name: "Set up python"
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"
+      - 
+        name: "Install poetry"
+        run: pip install poetry
+      -
+        name: "Install dependencies"
+        run: poetry install
+      -
+        name: "Set up MySQL"
+        run: |
+          sudo /etc/init.d/mysql start
+          poetry run python db.py
+          make migrate
+      -
+        name: "Test"
+        run: make test
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Pull source code"
+        uses: actions/checkout@v3
+      -
+        name: "Set up python"
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"
+      - 
+        name: "Install poetry"
+        run: pip install poetry
+      -
+        name: "Install dependencies"
+        run: poetry install
+      -
+        name: "Set up MySQL"
+        run: |
+          sudo /etc/init.d/mysql start
+          poetry run python db.py
+          make migrate
+      -
+        name: "Lint"
+        run: poetry run flake8
+
+    
+
+
