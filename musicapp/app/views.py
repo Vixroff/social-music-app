@@ -18,7 +18,7 @@ URL = 'https://api.musixmatch.com/ws/1.1/'
 APIKEY = f"&apikey={os.getenv('MUSIXMATCH_API')}"
 
 
-def index(request):
+def welcome(request):
     intro = """
     Welcome to the social-music-app!
     """
