@@ -1,4 +1,1 @@
-from .users_views import (
-    RegistrationView, #noqa
-    UserProfilesView,
-)
+from .users_views import *

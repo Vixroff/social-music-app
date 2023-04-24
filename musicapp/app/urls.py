@@ -25,7 +25,7 @@ urlpatterns = [
         ),
         path(
             '<int:user_pk>',
-            views.UserProfileView.as_view(),
+            views.UserProfilesView.as_view(),
             name='profile-view',
         ),
         path(
@@ -59,7 +59,7 @@ urlpatterns = [
             name='follow',
         ),
         path(
-            '<int:user_pk>/followings/<int:following_pk>',
+            '<int:user_pk>/followings/<int:following_pk>/unfollow',
             views.UserUnfollowView.as_view(),
             name='unfollow',
         ),
@@ -86,17 +86,17 @@ urlpatterns = [
             name='add-comment',
         ),
         path(
-            '<int:playlist_pk>/comments/<int:comment_id>/delete',
+            '<int:playlist_pk>/comments/<int:comment_pk>/delete',
             views.DeleteCommentView.as_view(),
             name='delete-comment',
         ),
         path(
-            '<int:playlist>/tracks/add',
+            '<int:playlist_pk>/tracks/add',
             views.AddTrackToPlaylistView.as_view(),
             name='add-track-to-playlist',
         ),
         path(
-            '<int:playlist>/tracks/<int:track_id>/delete',
+            '<int:playlist_pk>/tracks/<int:track_pk>/delete',
             views.DeleteTrackFromPlaylistView.as_view(),
             name='delete-track-from-playlist',
         ),
@@ -122,5 +122,5 @@ urlpatterns = [
             views.RecommendationsView.as_view(),
             name='recommendations',
         )
-    ]))      
+    ]))    
 ]

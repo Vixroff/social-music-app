@@ -4,22 +4,10 @@ from django.utils.translation import gettext_lazy as _
 
 
 class CustomUser(AbstractUser):
-    email = models.EmailField(
-        _("email address"),
-        unique=True
-        )
+    email = models.EmailField(_("email address"), unique=True)
     following = models.ManyToManyField('self', blank=True, symmetrical=False, related_name='followers')
     added_tracks = models.ManyToManyField('app.Tracks', through='app.UserHasTracks')
     added_playlists = models.ManyToManyField('app.Playlists', through='app.UserHasPlaylists')
-
-    def follow(self, user):
-        self.following.add(user)
-
-    def unfollow(self, user):
-        self.following.remove(user)
-
-    def is_follow(self, user):
-        return self.following.filter(id=user.id).exists()
 
     def get_users_recommendations(self):
         recommendations = []
@@ -87,8 +75,8 @@ class Playlists(models.Model):
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    creator = models.ForeignKey(CustomUser, related_name='playlists', on_delete=models.CASCADE)
-    tracks = models.ManyToManyField(Tracks, blank=True)
+    creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='playlists')
+    tracks = models.ManyToManyField(Tracks, null=True)
 
     class Meta:
         unique_together = ['name', 'creator']
@@ -104,7 +92,7 @@ class Comments(models.Model):
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    playlist = models.ForeignKey(Playlists, on_delete=models.CASCADE)
+    playlist = models.ForeignKey(Playlists, on_delete=models.CASCADE, related_name='comments')
 
     def __repr__(self):
         return "Comment(author={}, playlist={}, created_at={})".format(
@@ -122,8 +110,14 @@ class UserHasTracks(models.Model):
     track = models.ForeignKey(Tracks, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ['user', 'track']
+
 
 class UserHasPlaylists(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     playlist = models.ForeignKey(Playlists, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'track']
