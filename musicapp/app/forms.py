@@ -6,7 +6,7 @@ from .models import CustomUser, Playlists, Comments
 
 class RegistrationForm(UserCreationForm):
     class Meta:
-        model = CustomUser
+        heyel = CustomUser
         fields = [
             'username',
             'email',
