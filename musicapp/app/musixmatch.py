@@ -52,16 +52,21 @@ class MusixMatchAPIManager(AbstractMusixmatchAPIManager):
         1). `api (dict)`:
             A dictionary that maps allowed API request types to their corresponding parameters and URLs.
             Go to https://developer.musixmatch.com/documentation to see detailed documentation.
+
         2). `url (str)`:
             A base MusixMatch API URL.
+
         3). `apikey (str)`:
-            A MusixMatch API  apikey.
+            A MusixMatch API apikey.
 
     Methods:
         1). `__init__(self, api_request: str)` -> None:
-            Initializes MusixMatchAPIManager instance with given `api_request` as MusixMatch API request type.
+            Initializes MusixMatchAPIManager instance and 
+            defines `self.api_request` of it as MusixMatch API request type.
+
         2). `make_request(self, **params: Any)` -> None:
-            Sends a request to the MusixMatch API URL with the specified api_type and given parameters.
+            Sends a request to the MusixMatch API URL with the specified api_request and given parameters.
+
         3). `extract_json_response(self)` -> dict:
             Returns the response data as dict.
     """
@@ -115,7 +120,8 @@ class MusixMatchAPIManager(AbstractMusixmatchAPIManager):
     def __init__(self, api_request):
         """
         Initializes MusixMatchAPIManager instance.
-        Defines 1 class instance`s attribute:
+
+        Method constructs an instance and defines attribute of it:
             1). `self.api_request`
                 Type of MusixMatch API request.
 
@@ -133,8 +139,11 @@ class MusixMatchAPIManager(AbstractMusixmatchAPIManager):
 
     def make_request(self, **params):
         """
-        Sends a request to the MusixMatch API URL with the specified api_type and given parameters,
-        and saves the response in the instance's `response` attribute.
+        Makes request.
+
+        Method validates the given parameters, constructs Musixmatch API URL to be requested according to the
+        specified `self.api_request` of instance and given parameters. Then makes request, and saves the response as
+        `self.response` if response`s status is in 200 range.
 
         Args:
             1). `**params (Any)`:
@@ -143,6 +152,7 @@ class MusixMatchAPIManager(AbstractMusixmatchAPIManager):
         Raises:
             1). `ValueError`:
                 If the given parameters are not valid with specified `self.api_request` type.
+
             2). `requests.HTTPError`:
                 If the response status code is not in the 200 range.
         """
@@ -207,38 +217,49 @@ class MusixmatchAPIResponseHandler(
     Methods:
         1). `__init__(self, response: dict)` -> None:
             Initializes MusixmatchAPIResponseHandler class instance.
+
         2). `search_tracks_data(self)` -> None:
             Searches for `track` key in the `self.response` and extracts founded datasets to `self.content_to_insert`
+
         3). `upload_tracks_to_db(self)` -> None:
             Uploads tracks with all depended entities taken from `self.content_to_upload` in a database.
+
         4). `retrieve_handled_track_objects(self)` -> list:
             Returns list of `Tracks` handled objects taken from `self.content_handled`.
-        5). `_get_or_create_track_object(self, track_data: dict)` -> Tracks:
-            Creates and returns `Tracks` objects if it doesn`t exist else just returns.
+
+        5). `_get_or_create_track_object(self, track_data: dict)` -> tuple(album: `Tracks`, upload_status: bool):
+            Creates `Tracks` object if it doesn`t exist else retrieves.
             Makes relevant records in `self.content_uploaded` and `self.content_handled`
-        6). `_get_or_create_album_object(self, album_data: dict)` -> Albums:
-            Creates and returns `Albums` objects if it doesn`t exist else just returns.
+
+        6). `_get_or_create_album_object(self, album_data: dict)` -> tuple(album: `Albums`, upload_status: bool):
+            Creates `Albums` object if it doesn`t exist else retrieves.
             Makes relevant records in `self.content_uploaded` and `self.content_handled`
-        7). `_get_or_create_artist_object(self, artist_data: dict)` -> Artists:
-            Creates and returns `Artists` objects if it doesn`t exist else just returns.
+
+        7). `_get_or_create_artist_object(self, artist_data: dict)` -> tuple(album: `Artists`, upload_status: bool):
+            Creates `Artists` object if it doesn`t exist else retrieves.
             Makes relevant records in `self.content_uploaded` and `self.content_handled`
-        8). `_get_or_create_genre_object(self, genre_data: dict)` -> Genres:
-            Creates and returns `Genres` objects if it doesn`t exist else just returns.
+
+        8). `_get_or_create_genre_object(self, genre_data: dict)` -> tuple(album: `Genres`, upload_status: bool)::
+            Creates `Genres` object if it doesn`t exist else retrieves.
             Makes relevant records in `self.content_uploaded` and `self.content_handled`
     """
 
     def __init__(self, response: dict):
         """
         Initializes MusixmatchAPIResponseHandler class instance.
-        Defines 4 class instance`s attributes:
+
+        Method constructs an instance and defines 4 attributes of it:
             1). `self.response (dict)`:
                 The response from Musixmatch API request.
+
             2). `self.content_to_insert (list)`:
                 Stores extracted entities dataset from the response.
+
             3). `self.content_uploaded (list)`:
                 Stores succesfully uploaded content objects.
                 !Note that some objects could be already existing in database.
                 That case would not append objects to this attribute.
+
             4). `self.content_handled (list)`:
                 Stores all handled objects.
 
@@ -254,8 +275,10 @@ class MusixmatchAPIResponseHandler(
 
     def search_tracks_data(self):
         """
-        Searches for `track` keys in the `self.response` recursively.
-        Stores founded datasets in `self.content_to_insert`.
+        Extracts `track` datasets from the `self.response` and stores in `self.content_to_insert`
+
+        Method searches for `track` keys in the `self.response` recursively and
+        stores their values in `self.content_to_insert` as {'track': value}.
         """
 
         for key, value in self.response.items():
@@ -268,105 +291,118 @@ class MusixmatchAPIResponseHandler(
     def upload_tracks_to_db(self):
         """
         Uploads tracks with depended entities (author, album, genres) in a database.
-        Filters `self.content_to_insert` and takes all founded `track` datasets.
-        Loops it and uploads using 5-8 cls methods.
+
+        Method extracts `track` datasets from `self.content_to_insert`,
+        handles them and uploads using 5-8 cls methods if `track` doesn't already exist.
         Relevant records in a `self.content_uploaded` and `self.content_handled` are updated.
         """
 
         track_datasets = list(filter(lambda x: x.get('track'), self.content_to_insert))
         for dataset in track_datasets:
-            if Tracks.objects.filter(id_musixmatch=dataset['track_id']).exists():
-                self.content_handled.append({'track': dataset['track_id']})
-                continue
-            author = self._get_or_create_artist_object(dataset)
-            album = self._get_or_create_album_object(dataset)
-            genres = []
-            for genre in dataset['primary_genres']['music_genre_list']:
-                genre = self._get_or_create_genre_object(genre)
-                genres.append(genre)
-            track = self._get_or_create_track_object(dataset)
-            track.author = author
-            track.album = album
-            track.genres.set(genres)
-            track.save()
+            track, status = self._get_or_create_track_object(dataset)
+            if status is True:
+                track.author = self._get_or_create_artist_object(dataset)[0]
+                track.album = self._get_or_create_album_object(dataset)[0]
+                track.genres.set([
+                    self._get_or_create_genre_object(genre)[0]
+                    for genre in dataset['primary_genres']['music_genre_list']
+                ])
+                track.save()
+            continue
 
     def retrieve_handled_track_objects(self):
         """Returns all handled `Tracks` objects."""
 
         return list(filter(lambda x: isinstance(x, Tracks), self.content_handled))
 
-    def _get_or_create_track_object(self, track_data: dict):
+    def _get_or_create_track_object(self, track_data: dict) -> tuple:
         """
-        Creates `Tracks` object and returns if doesn't exist else just returns.
-        Updates `self.content_handled` and `self.content_uploaded` with result.
+        Creates `Tracks` object if it doesn`t already exist in a database otherwise retrieves.
+        Updates `self.content_handled` and `self.content_uploaded` respectively with object.
 
         Args:
             1). `track_data (dict)`:
                 A dataset that has `track_id` and `track_name` keys;
+
+        Returns:
+            `tuple(track: `Tracks`, upload_status: bool)`:
+            `upload_status` is True if object wasn't existing in a database and it was uploaded otherwise False.
         """
 
-        track_object, track_upload_status = Tracks.objects.get_or_create(
+        track, upload_status = Tracks.objects.get_or_create(
                 id_musixmatch=track_data['track_id'],
                 name=track_data['track_name']
             )
-        self.content_handled.append({'track': track_object})
-        if track_upload_status is False:
-            self.content_uploaded.append({'track': track_object})
-        return track_object
+        self.content_handled.append({'track': track})
+        if upload_status is True:
+            self.content_uploaded.append({'track': track})
+        return track, upload_status
 
-    def _get_or_create_album_object(self, album_data: dict):
+    def _get_or_create_album_object(self, album_data: dict) -> tuple:
         """
-        Creates `Albums` object and returns if doesn't exist else just returns.
-        Updates `self.content_handled` and `self.content_uploaded` with result.
+        Creates `Albums` object if it doesn`t already exist in a database otherwise retrieves.
+        Updates `self.content_handled` and `self.content_uploaded` respectively with object.
 
         Args:
             1). `album_data (dict)`:
-                A dataset that has `album_id` and `album_name` keys;
+                A dataset that has `album_id` and `album_name` keys.
+
+        Returns:
+            `tuple(track: `Albums`, upload_status: bool)`:
+            `upload_status` is True if object wasn't existing in a database and it was uploaded otherwise False.
         """
 
-        album_object, album_upload_status = Albums.objects.get_or_create(
+        album, upload_status = Albums.objects.get_or_create(
             id_musixmatch=album_data['album_id'],
             name=album_data['album_name']
         )
-        self.content_handled.append({'album': album_object})
-        if album_upload_status is True:
-            self.content_uploaded.append({'album': album_object})
-        return album_object
+        self.content_handled.append({'album': album})
+        if upload_status is True:
+            self.content_uploaded.append({'album': album})
+        return album, upload_status
 
     def _get_or_create_artist_object(self, artist_data: dict):
         """
-        Creates `Artists` object and returns if doesn't exist else just returns.
-        Updates `self.content_handled` and `self.content_uploaded` with result.
+        Creates `Artists` object if it doesn`t already exist in a database otherwise retrieves.
+        Updates `self.content_handled` and `self.content_uploaded` respectively with object.
 
         Args:
             1). `artist_data (dict)`:
                 A dataset that has `artistid` and `artistname` keys;
+
+        Returns:
+            `tuple(track: `Artists`, upload_status: bool)`:
+            `upload_status` is True if object wasn't existing in a database and it was uploaded otherwise False.
         """
 
-        artist_object, artist_upload_status = Artists.objects.get_or_create(
+        artist, upload_status = Artists.objects.get_or_create(
             id_musixmatch=artist_data['artist_id'],
             name=artist_data['artist_name']
         )
-        self.content_handled.append({'artist': artist_object})
-        if artist_upload_status is True:
-            self.content_uploaded.append({'artist': artist_object})
-        return artist_object
+        self.content_handled.append({'artist': artist})
+        if upload_status is True:
+            self.content_uploaded.append({'artist': artist})
+        return artist, upload_status
 
-    def _get_or_create_genre_object(self, genre_data: dict):
+    def _get_or_create_genre_object(self, genre_data: dict) -> tuple:
         """
-        Creates `Genres` object and returns if doesn't exist else just returns.
-        Updates `self.content_handled` and `self.content_uploaded` with result.
+        Creates `Genres` object if it doesn`t already exist in a database otherwise retrieves.
+        Updates `self.content_handled` and `self.content_uploaded` respectively with object.
 
         Args:
             1). `genre_data (dict)`:
                 A dataset that has `music_genre.music_genre_id` and `music_genre.music_genre_name` keys;
+
+        Returns:
+            `tuple(track: `Genres`, upload_status: bool)`:
+            `upload_status` is True if object wasn't existing in a database and it was uploaded otherwise False.
         """
 
-        genre_object, genre_upload_status = Genres.objects.get_or_create(
+        genre, upload_status = Genres.objects.get_or_create(
             id_musixmatch=genre_data['music_genre']['music_genre_id'],
             name=genre_data['music_genre']['music_genre_name']
         )
-        self.content_handled.append({'genre': genre_object})
-        if genre_upload_status is True:
-            self.content_uploaded.append({'genre': genre_object})
-        return genre_object
+        self.content_handled.append({'genre': genre})
+        if upload_status is True:
+            self.content_uploaded.append({'genre': genre})
+        return genre, upload_status
